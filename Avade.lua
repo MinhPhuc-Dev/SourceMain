@@ -29,10 +29,10 @@ local function sendToWebhook(stats)
     if success then
         print("Đã gửi thông tin đến Webhook.site.")
     else
-        warn("Lỗi khi gửi thông tin đến Webhook.site: " .. tostring(response))
+        warn("Lỗi khi gửi thông tin đến Webhook.site: " tostring(response))
     end
 end
 
 -- Thực thi
-local stats = getPlayerStats()
+local stats = getStats()
 sendToWebhook(stats)
