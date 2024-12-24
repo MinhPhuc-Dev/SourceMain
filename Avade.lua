@@ -4,16 +4,24 @@ local Players = game:GetService("Players")
 -- Hàm lấy thông tin người chơi
 local function getPlayerStats()
     local player = Players.LocalPlayer
-    if player then
-        return {
-            AccountName = player.Name,
-            UserId = player.UserId,
-            Score = 100 -- Điểm số giả định
+    
+    -- Nếu player là nil, thay thế bằng giá trị mặc định
+    player = player or {
+        Name = "Guest",      -- Tên mặc định nếu không có LocalPlayer
+        UserId = 0,          -- UserId mặc định nếu không có LocalPlayer
+        Character = {
+            Humanoid = {
+                Health = 100, -- Giá trị mặc định cho sức khỏe
+            }
         }
-    else
-        warn("Không thể truy cập LocalPlayer.")
-        return nil
-    end
+    }
+    
+    -- Trả về thông tin người chơi hoặc giá trị mặc định nếu không có LocalPlayer
+    return {
+        AccountName = player.Name,
+        UserId = player.UserId,
+        Score = 100 -- Điểm số giả định (mặc định)
+    }
 end
 
 -- Hàm gửi thông tin đến Webhook.site
