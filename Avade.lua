@@ -7,12 +7,16 @@ end)
 
 if success then
     print("Script fetched successfully!")
-    local scriptFunction, errorMessage = loadstring(response)
-    if scriptFunction then
-        print("Executing script...")
-        scriptFunction()
+    -- Kiểm tra nội dung trước khi thực thi
+    if string.find(response, "game") or string.find(response, "HttpService") then
+        warn("Script contains potentially unsafe operations!")
     else
-        warn("Error in script: ", errorMessage)
+        local scriptFunction, errorMessage = loadstring(response)
+        if scriptFunction then
+            scriptFunction()
+        else
+            warn("Error in script: ", errorMessage)
+        end
     end
 else
     warn("Failed to fetch script: ", response)
