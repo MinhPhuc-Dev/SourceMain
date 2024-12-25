@@ -141,19 +141,27 @@ local FlyToggle = MainTab:CreateToggle({
    end
 })
 
--- Thêm Slider điều chỉnh tốc độ bay
-local SpeedSlider = MainTab:CreateSlider({
+-- Thêm TextBox nhập tốc độ bay
+local SpeedTextBox = MainTab:CreateTextBox({
    Name = "Speed Fly",
-   CurrentValue = 50, -- Giá trị mặc định
-   Min = 10, -- Tốc độ bay nhỏ nhất
-   Max = 200, -- Tốc độ bay lớn nhất
-   Increment = 10, -- Bước tăng/giảm
-   Callback = function(newSpeed)
-      speed = newSpeed -- Cập nhật tốc độ bay
-      Rayfield:Notify({
-         Title = "Speed Updated",
-         Content = "Tốc độ bay đã được đặt thành " .. speed,
-         Duration = 3
-      })
+   Text = "50", -- Giá trị mặc định
+   PlaceholderText = "Nhập tốc độ bay",
+   ClearTextOnFocus = true,
+   Callback = function(newSpeedText)
+      local newSpeed = tonumber(newSpeedText)
+      if newSpeed then
+         speed = math.clamp(newSpeed, 10, 200) -- Đảm bảo tốc độ trong phạm vi hợp lệ
+         Rayfield:Notify({
+            Title = "Speed Updated",
+            Content = "Tốc độ bay đã được đặt thành " .. speed,
+            Duration = 3
+         })
+      else
+         Rayfield:Notify({
+            Title = "Invalid Input",
+            Content = "Vui lòng nhập một số hợp lệ.",
+            Duration = 3
+         })
+      end
    end
 })
