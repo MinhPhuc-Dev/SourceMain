@@ -1,40 +1,48 @@
-local Players = game:GetService("Players")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Hàm lấy thông tin người chơi
-local function getPlayerStats()
-    local player = Players.LocalPlayer
-    
-    -- Nếu player là nil, thay thế bằng giá trị mặc định
-    player = player or {
-        Name = "Guest",      -- Tên mặc định nếu không có LocalPlayer
-        UserId = 0,          -- UserId mặc định nếu không có LocalPlayer
-        Character = {
-            Humanoid = {
-                Health = 100, -- Giá trị mặc định cho sức khỏe
-            }
-        }
-    }
-    
-    -- Trả về thông tin người chơi hoặc giá trị mặc định nếu không có LocalPlayer
-    return {
-        AccountName = player.Name,
-        UserId = player.UserId,
-        Score = 100 -- Điểm số giả định (mặc định)
-    }
-end
+local Window = Rayfield:CreateWindow({
+   Name = "Evade Hub🤡",
+   Icon = 0,
+   LoadingTitle = "Evade Hub🤡",
+   LoadingSubtitle = "by Sigma_Male",
+   Theme = "Default",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true 
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Evade Hub | key",
+      Subtitle = "Key System",
+      Note = "Hub nay duoc lam boi sigma",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"12345"}
+   }
+})
 
--- In thông tin người chơi lên màn hình
-local function printPlayerStats(stats)
-    if stats then
-        print("Thông tin người chơi:")
-        print("Tên tài khoản: " .. stats.AccountName)
-        print("UserId: " .. stats.UserId)
-        print("Điểm số: " .. stats.Score)
-    else
-        warn("Không có thông tin người chơi để hiển thị.")
-    end
-end
+local MainTab = Window:CreateTab("Home", nil) -- Title, Image
+local Section = MainTab:CreateSection("Main") -- Đổi từ Tab thành MainTab
 
--- Thực thi
-local stats = getPlayerStats()
-printPlayerStats(stats)
+Rayfield:Notify({
+   Title = "Successfully",
+   Content = "Let him cook",
+   Duration = 5,
+   Image = nil,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Fly",
+   Callback = function()
+      -- Thêm mã bay (fly code) vào đây
+   end,
+})
