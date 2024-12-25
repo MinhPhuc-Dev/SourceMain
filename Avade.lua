@@ -17,7 +17,6 @@ local Window = OrionLib:MakeWindow({
     MinimizeButton = true, -- Cho phép thu nhỏ giao diện
     DragToggle = true -- Bật tính năng kéo UI khi thu nhỏ
 })
--- Tính năng `DragToggle` cho phép người dùng di chuyển giao diện khi thu nhỏ.
 
 -- Hiển thị thông báo "Script Loaded!!"
 OrionLib:MakeNotification({
@@ -38,7 +37,7 @@ local MainTab = Window:MakeTab({
 local flying = false -- Trạng thái bật/tắt bay
 local platform -- Biến lưu giữ khối nâng nhân vật
 local defaultHeight = 3 -- Độ cao mặc định của khối so với nhân vật
-local speed = 40 -- Tốc độ di chuyển theo phương ngang
+local speed = 40 -- Tốc độ di chuyển theo joystick
 
 -- Hàm tạo khối nền tảng
 local function createPlatform()
@@ -58,9 +57,19 @@ local function updatePlatform()
         local character = LocalPlayer.Character -- Lấy nhân vật của người chơi
         if character then
             local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") -- Lấy phần trung tâm nhân vật
-            if humanoidRootPart then
-                platform.Position = humanoidRootPart.Position - Vector3.new(0, defaultHeight, 0) 
-                -- Đặt khối bên dưới nhân vật
+            local humanoid = character:FindFirstChildOfClass("Humanoid") -- Lấy Humanoid của nhân vật
+            if humanoidRootPart and humanoid then
+                local moveDirection = humanoid.MoveDirection -- Lấy hướng di chuyển từ joystick
+                local verticalAdjustment = 0 -- Điều chỉnh độ cao
+                -- Tăng hoặc giảm độ cao dựa vào trạng thái nhảy/cúi
+                if userInputService:IsKeyDown(Enum.KeyCode.Space) then
+                    verticalAdjustment = 1 -- Bay lên
+                elseif userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    verticalAdjustment = -1 -- Bay xuống
+                end
+                -- Cập nhật vị trí khối dựa vào hướng joystick và điều chỉnh độ cao
+                platform.Position = humanoidRootPart.Position 
+                    + Vector3.new(moveDirection.X, verticalAdjustment, moveDirection.Z) * speed * 0.03
             end
         end
     end
@@ -92,19 +101,6 @@ MainTab:AddToggle({
         end
     end
 })
-
--- Điều chỉnh độ cao cho người dùng di động và bàn phím
-local userInputService = game:GetService("UserInputService") -- Dịch vụ nhận đầu vào từ bàn phím và chuột
-userInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end -- Không xử lý đầu vào đã được game sử dụng
-    if input.KeyCode == Enum.KeyCode.Space or input.UserInputType == Enum.UserInputType.Touch then
-        -- Tăng độ cao khi nhấn Space hoặc chạm màn hình
-        defaultHeight = defaultHeight + 1
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then
-        -- Giảm độ cao khi nhấn LeftShift
-        defaultHeight = defaultHeight - 1
-    end
-end)
 
 -- Xóa thông báo quảng cáo "new update" của UI
 local UISettings = OrionLib.UISettings
