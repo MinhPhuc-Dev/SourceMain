@@ -12,7 +12,7 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil,
-      FileName = "Royfid data"
+      FileName = "Big Hub"
    },
    Discord = {
       Enabled = false,
@@ -34,10 +34,11 @@ Rayfield:Notify({
 local MainTab = Window:CreateTab("Home", nil)
 local Section = MainTab:CreateSection("Main")
 
--- Biến kiểm soát trạng thái bay
+-- Biến kiểm soát trạng thái bay và tốc độ bay
 local flying = false
-local speed = 50 -- Tốc độ bay
+local speed = 50 -- Tốc độ bay mặc định
 local flyDirection = Vector3.zero -- Hướng di chuyển
+local isJumping = false -- Kiểm tra nếu người chơi giữ phím nhảy
 local shiftLock = game.Players.LocalPlayer.DevEnableMouseLock -- Lưu trạng thái shift lock ban đầu
 
 -- Kích hoạt chế độ Shift Lock
@@ -65,45 +66,30 @@ local function handleFly()
 
    spawn(function()
       while flying and humanoidRootPart do
-         -- Xử lý di chuyển
-         if touchEnabled then
-            -- Mobile: Lấy hướng từ joystick
-            local moveDirection = game:GetService("Players").LocalPlayer.DevTouchMovementMode
-            if moveDirection then
-               flyDirection = Vector3.new(moveDirection.X, 0, moveDirection.Z)
-            end
+         -- Cập nhật hướng di chuyển dựa trên trạng thái
+         if isJumping then
+            flyDirection = Vector3.new(0, 1, 0) -- Bay lên
          else
-            -- PC: Xử lý phím nhấn
-            userInputService.InputBegan:Connect(function(input)
-               if input.KeyCode == Enum.KeyCode.Space then
-                  flyDirection = Vector3.new(0, 1, 0) -- Bay lên khi nhấn Space
-               elseif input.KeyCode == Enum.KeyCode.W then
-                  flyDirection = flyDirection + Vector3.new(0, 0, -1) -- Tiến
-               elseif input.KeyCode == Enum.KeyCode.S then
-                  flyDirection = flyDirection + Vector3.new(0, 0, 1) -- Lùi
-               elseif input.KeyCode == Enum.KeyCode.A then
-                  flyDirection = flyDirection + Vector3.new(-1, 0, 0) -- Trái
-               elseif input.KeyCode == Enum.KeyCode.D then
-                  flyDirection = flyDirection + Vector3.new(1, 0, 0) -- Phải
-               end
-            end)
-
-            userInputService.InputEnded:Connect(function(input)
-               if input.KeyCode == Enum.KeyCode.Space then
-                  flyDirection = flyDirection - Vector3.new(0, 1, 0)
-               elseif input.KeyCode == Enum.KeyCode.W then
-                  flyDirection = flyDirection - Vector3.new(0, 0, -1)
-               elseif input.KeyCode == Enum.KeyCode.S then
-                  flyDirection = flyDirection - Vector3.new(0, 0, 1)
-               elseif input.KeyCode == Enum.KeyCode.A then
-                  flyDirection = flyDirection - Vector3.new(-1, 0, 0)
-               elseif input.KeyCode == Enum.KeyCode.D then
-                  flyDirection = flyDirection - Vector3.new(1, 0, 0)
-               end
-            end)
+            flyDirection = Vector3.new(0, 0, 0) -- Không thay đổi chiều cao
          end
 
-         -- Cập nhật hướng và vận tốc
+         -- Xử lý phím di chuyển
+         if not touchEnabled then
+            if userInputService:IsKeyDown(Enum.KeyCode.W) then
+               flyDirection = flyDirection + Vector3.new(0, 0, -1) -- Tiến
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.S) then
+               flyDirection = flyDirection + Vector3.new(0, 0, 1) -- Lùi
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.A) then
+               flyDirection = flyDirection + Vector3.new(-1, 0, 0) -- Trái
+            end
+            if userInputService:IsKeyDown(Enum.KeyCode.D) then
+               flyDirection = flyDirection + Vector3.new(1, 0, 0) -- Phải
+            end
+         end
+
+         -- Cập nhật vận tốc bay
          humanoidRootPart.Velocity = flyDirection.Unit * speed
          wait(0.1)
       end
@@ -116,7 +102,22 @@ local function handleFly()
    end)
 end
 
--- Thêm Toggle vào giao diện
+-- Lắng nghe sự kiện nhấn và nhả phím
+local userInputService = game:GetService("UserInputService")
+
+userInputService.InputBegan:Connect(function(input)
+   if flying and input.KeyCode == Enum.KeyCode.Space then
+      isJumping = true -- Người chơi đang nhảy
+   end
+end)
+
+userInputService.InputEnded:Connect(function(input)
+   if flying and input.KeyCode == Enum.KeyCode.Space then
+      isJumping = false -- Người chơi ngừng nhảy
+   end
+end)
+
+-- Thêm Toggle Fly vào giao diện
 local FlyToggle = MainTab:CreateToggle({
    Name = "Fly",
    CurrentValue = false,
@@ -137,5 +138,22 @@ local FlyToggle = MainTab:CreateToggle({
             Duration = 5
          })
       end
+   end
+})
+
+-- Thêm Slider điều chỉnh tốc độ bay
+local SpeedSlider = MainTab:CreateSlider({
+   Name = "Speed Fly",
+   CurrentValue = 50, -- Giá trị mặc định
+   Min = 10, -- Tốc độ bay nhỏ nhất
+   Max = 200, -- Tốc độ bay lớn nhất
+   Increment = 10, -- Bước tăng/giảm
+   Callback = function(newSpeed)
+      speed = newSpeed -- Cập nhật tốc độ bay
+      Rayfield:Notify({
+         Title = "Speed Updated",
+         Content = "Tốc độ bay đã được đặt thành " .. speed,
+         Duration = 3
+      })
    end
 })
