@@ -8,12 +8,12 @@ local PlayerName = LocalPlayer.DisplayName -- Tên hiển thị của người c
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
-    Name = "Rielsick Hub", -- Tên giao diện (loại bỏ chữ "Welcome back")
+    Name = "Rielsick Hub", -- Tên giao diện chính
     HidePremium = false, -- Hiển thị các tính năng Premium
     SaveConfig = true, -- Lưu cấu hình người dùng
     ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình
     IntroEnabled = true, -- Hiển thị màn hình giới thiệu
-    IntroText = "Welcome to Rielsick Hub!", -- Văn bản màn hình giới thiệu
+    IntroText = "Welcome to Rielsick Hub!", -- Văn bản giới thiệu
     MinimizeButton = true -- Cho phép thu nhỏ giao diện
 })
 
@@ -35,45 +35,47 @@ local MainTab = Window:MakeTab({
 -- Biến toàn cục
 local flying = false -- Trạng thái bay
 local speed = 40 -- Tốc độ bay mặc định
-local flyDirection = Vector3.zero -- Hướng bay
+local flyDirection = Vector3.zero -- Hướng di chuyển
+local bodyVelocity -- Lực bay
 
--- Phương pháp bay cải tiến để tránh bị kẹt
+-- Phương pháp bay cải tiến
 local function handleFly()
-    local player = LocalPlayer -- Người chơi hiện tại
-    local character = player.Character or player.CharacterAdded:Wait() -- Đợi nhân vật của người chơi
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait() -- Đợi nhân vật người chơi
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart") -- Phần trung tâm di chuyển
 
-    -- Xóa các lực cũ để tránh xung đột
+    -- Xóa lực cũ nếu đã tồn tại
     if humanoidRootPart:FindFirstChild("BodyVelocity") then
         humanoidRootPart.BodyVelocity:Destroy()
     end
 
-    local bodyVelocity = Instance.new("BodyVelocity") -- Tạo lực bay
+    -- Tạo lực mới để điều khiển bay
+    bodyVelocity = Instance.new("BodyVelocity")
     bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5) -- Đặt lực tối đa
+    bodyVelocity.Velocity = Vector3.zero -- Ban đầu không di chuyển
     bodyVelocity.Parent = humanoidRootPart -- Gắn lực bay vào nhân vật
 
-    -- Luồng bay
+    -- Bắt đầu luồng bay
     spawn(function()
         while flying do
             bodyVelocity.Velocity = flyDirection * speed -- Cập nhật hướng và tốc độ
-            wait(0.03) -- Dừng ngắn để tránh quá tải CPU
+            wait(0.03) -- Giảm tải CPU
         end
-        bodyVelocity:Destroy() -- Xóa lực bay khi dừng
+        bodyVelocity:Destroy() -- Xóa lực khi tắt bay
     end)
 end
 
--- Lắng nghe sự kiện nhấn phím để di chuyển
+-- Lắng nghe sự kiện nhấn và nhả phím
 local userInputService = game:GetService("UserInputService") -- Dịch vụ nhận phím đầu vào
 
 userInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.W then
-        flyDirection = Vector3.new(0, 0, -1) -- Tiến tới
+        flyDirection = flyDirection + Vector3.new(0, 0, -1) -- Tiến tới
     elseif input.KeyCode == Enum.KeyCode.S then
-        flyDirection = Vector3.new(0, 0, 1) -- Lùi lại
+        flyDirection = flyDirection + Vector3.new(0, 0, 1) -- Lùi lại
     elseif input.KeyCode == Enum.KeyCode.A then
-        flyDirection = Vector3.new(-1, 0, 0) -- Sang trái
+        flyDirection = flyDirection + Vector3.new(-1, 0, 0) -- Sang trái
     elseif input.KeyCode == Enum.KeyCode.D then
-        flyDirection = Vector3.new(1, 0, 0) -- Sang phải
+        flyDirection = flyDirection + Vector3.new(1, 0, 0) -- Sang phải
     elseif input.KeyCode == Enum.KeyCode.Space then
         flyDirection = flyDirection + Vector3.new(0, 1, 0) -- Bay lên
     elseif input.KeyCode == Enum.KeyCode.LeftShift then
@@ -82,7 +84,11 @@ userInputService.InputBegan:Connect(function(input)
 end)
 
 userInputService.InputEnded:Connect(function(input)
-    flyDirection = Vector3.zero -- Dừng di chuyển khi nhả phím
+    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S or 
+       input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D or 
+       input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftShift then
+        flyDirection = Vector3.zero -- Dừng di chuyển khi nhả phím
+    end
 end)
 
 -- Thêm Toggle bật/tắt chế độ bay
