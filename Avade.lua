@@ -2,145 +2,157 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- Lấy tên người chơi
-local Players = game:GetService("Players") -- Dịch vụ quản lý người chơi
-local LocalPlayer = Players.LocalPlayer -- Người chơi hiện tại
-local PlayerName = LocalPlayer.DisplayName -- Tên hiển thị của người chơi
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerName = LocalPlayer.DisplayName
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
-    Name = "Rielsick Hub", -- Tên giao diện chính
-    HidePremium = false, -- Hiển thị các tính năng Premium
-    SaveConfig = true, -- Lưu cấu hình người dùng
-    ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình
-    IntroEnabled = true, -- Hiển thị màn hình giới thiệu
-    IntroText = "Welcome to Rielsick Hub!", -- Văn bản giới thiệu
-    MinimizeButton = true -- Cho phép thu nhỏ giao diện
+    Name = "Rielsick Hub",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "RielsickHub",
+    IntroEnabled = true,
+    IntroText = "Welcome to Rielsick Hub!",
+    MinimizeButton = true
 })
 
 -- Hiển thị thông báo "Script Loaded!!"
 OrionLib:MakeNotification({
-    Name = "Script Loaded!!", -- Tiêu đề thông báo
-    Content = "Welcome back!! " .. PlayerName, -- Nội dung thông báo
-    Image = "rbxassetid://4483345998", -- Icon thông báo
-    Time = 5 -- Thời gian hiển thị
+    Name = "Script Loaded!!",
+    Content = "Welcome back!! " .. PlayerName,
+    Image = "rbxassetid://4483345998",
+    Time = 5
 })
 
 -- Tạo tab chính trong giao diện
 local MainTab = Window:MakeTab({
-    Name = "Home", -- Tên tab
-    Icon = "rbxassetid://4483345998", -- Icon tab
-    PremiumOnly = false -- Không giới hạn Premium
+    Name = "Home",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
 })
 
 -- Biến toàn cục
-local flying = false -- Trạng thái bay
-local speed = 40 -- Tốc độ bay mặc định
-local flyDirection = Vector3.zero -- Hướng di chuyển
-local bodyVelocity -- Lực bay
+local flying = false
+local speed = 40
+local platform
 
--- Phương pháp bay cải tiến
-local function handleFly()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait() -- Đợi nhân vật người chơi
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart") -- Phần trung tâm di chuyển
-
-    -- Xóa lực cũ nếu đã tồn tại
-    if humanoidRootPart:FindFirstChild("BodyVelocity") then
-        humanoidRootPart.BodyVelocity:Destroy()
-    end
-
-    -- Tạo lực mới để điều khiển bay
-    bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5) -- Đặt lực tối đa
-    bodyVelocity.Velocity = Vector3.zero -- Ban đầu không di chuyển
-    bodyVelocity.Parent = humanoidRootPart -- Gắn lực bay vào nhân vật
-
-    -- Bắt đầu luồng bay
-    spawn(function()
-        while flying do
-            bodyVelocity.Velocity = flyDirection * speed -- Cập nhật hướng và tốc độ
-            wait(0.03) -- Giảm tải CPU
-        end
-        bodyVelocity:Destroy() -- Xóa lực khi tắt bay
-    end)
+-- Hàm tạo nền tảng tàng hình
+local function createPlatform()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    platform = Instance.new("Part")
+    platform.Size = Vector3.new(4, 1, 4) -- Kích thước khối
+    platform.Anchored = true -- Giữ cố định
+    platform.CanCollide = true -- Có thể va chạm
+    platform.Transparency = 1 -- Tàng hình
+    platform.Parent = workspace -- Thêm vào không gian làm việc
 end
 
--- Lắng nghe sự kiện nhấn và nhả phím
-local userInputService = game:GetService("UserInputService") -- Dịch vụ nhận phím đầu vào
-
-userInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.W then
-        flyDirection = flyDirection + Vector3.new(0, 0, -1) -- Tiến tới
-    elseif input.KeyCode == Enum.KeyCode.S then
-        flyDirection = flyDirection + Vector3.new(0, 0, 1) -- Lùi lại
-    elseif input.KeyCode == Enum.KeyCode.A then
-        flyDirection = flyDirection + Vector3.new(-1, 0, 0) -- Sang trái
-    elseif input.KeyCode == Enum.KeyCode.D then
-        flyDirection = flyDirection + Vector3.new(1, 0, 0) -- Sang phải
-    elseif input.KeyCode == Enum.KeyCode.Space then
-        flyDirection = flyDirection + Vector3.new(0, 1, 0) -- Bay lên
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then
-        flyDirection = flyDirection + Vector3.new(0, -1, 0) -- Bay xuống
+-- Hàm cập nhật vị trí nền tảng
+local function updatePlatform()
+    if not platform then return end
+    local character = LocalPlayer.Character
+    if not character then return end
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        platform.Position = humanoidRootPart.Position - Vector3.new(0, 3, 0) -- Đặt nền tảng bên dưới nhân vật
     end
-end)
-
-userInputService.InputEnded:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S or 
-       input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D or 
-       input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftShift then
-        flyDirection = Vector3.zero -- Dừng di chuyển khi nhả phím
-    end
-end)
+end
 
 -- Thêm Toggle bật/tắt chế độ bay
 MainTab:AddToggle({
-    Name = "Enable Fly", -- Tên toggle
-    Default = false, -- Mặc định là tắt
+    Name = "Enable Fly",
+    Default = false,
     Callback = function(toggleValue)
-        flying = toggleValue -- Cập nhật trạng thái bay
+        flying = toggleValue
         if flying then
             OrionLib:MakeNotification({
-                Name = "Flying Enabled", -- Tiêu đề thông báo
-                Content = "Bạn đang bay!", -- Nội dung thông báo
-                Image = "rbxassetid://4483345998", -- Icon thông báo
-                Time = 5 -- Thời gian hiển thị
+                Name = "Flying Enabled",
+                Content = "Bạn đang bay!",
+                Image = "rbxassetid://4483345998",
+                Time = 5
             })
-            handleFly() -- Bắt đầu bay
+            createPlatform() -- Tạo nền tảng
+            spawn(function()
+                while flying do
+                    updatePlatform() -- Cập nhật vị trí nền tảng
+                    wait(0.03)
+                end
+                platform:Destroy() -- Xóa nền tảng khi tắt bay
+            end)
         else
             OrionLib:MakeNotification({
-                Name = "Flying Disabled", -- Tiêu đề thông báo
-                Content = "Bạn đã dừng bay!", -- Nội dung thông báo
-                Image = "rbxassetid://4483345998", -- Icon thông báo
-                Time = 5 -- Thời gian hiển thị
+                Name = "Flying Disabled",
+                Content = "Bạn đã dừng bay!",
+                Image = "rbxassetid://4483345998",
+                Time = 5
             })
+            if platform then
+                platform:Destroy()
+            end
         end
     end
 })
 
 -- Thêm TextBox để thay đổi tốc độ bay
 MainTab:AddTextbox({
-    Name = "Set Fly Speed", -- Tên TextBox
-    Default = "40", -- Giá trị mặc định
-    TextDisappear = true, -- Văn bản sẽ biến mất sau khi nhập
+    Name = "Set Fly Speed",
+    Default = "40",
+    TextDisappear = true,
     Callback = function(newSpeedText)
-        local newSpeed = tonumber(newSpeedText) -- Chuyển giá trị nhập thành số
+        local newSpeed = tonumber(newSpeedText)
         if newSpeed then
-            speed = math.clamp(newSpeed, 10, 200) -- Đảm bảo tốc độ trong khoảng 10–200
+            speed = math.clamp(newSpeed, 10, 200)
             OrionLib:MakeNotification({
-                Name = "Speed Updated", -- Tiêu đề thông báo
-                Content = "Set speed to " .. speed, -- Nội dung thông báo
-                Image = "rbxassetid://4483345998", -- Icon thông báo
-                Time = 3 -- Thời gian hiển thị
+                Name = "Speed Updated",
+                Content = "Set speed to " .. speed,
+                Image = "rbxassetid://4483345998",
+                Time = 3
             })
         else
             OrionLib:MakeNotification({
-                Name = "Invalid Speed", -- Tiêu đề thông báo
-                Content = "Please enter a valid number!", -- Nội dung thông báo
-                Image = "rbxassetid://4483345998", -- Icon thông báo
-                Time = 3 -- Thời gian hiển thị
+                Name = "Invalid Speed",
+                Content = "Please enter a valid number!",
+                Image = "rbxassetid://4483345998",
+                Time = 3
             })
         end
     end
 })
+
+-- Lắng nghe sự kiện nhấn phím để di chuyển
+local userInputService = game:GetService("UserInputService")
+local flyDirection = Vector3.zero
+
+userInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W then
+        flyDirection = flyDirection + Vector3.new(0, 0, -1)
+    elseif input.KeyCode == Enum.KeyCode.S then
+        flyDirection = flyDirection + Vector3.new(0, 0, 1)
+    elseif input.KeyCode == Enum.KeyCode.A then
+        flyDirection = flyDirection + Vector3.new(-1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.D then
+        flyDirection = flyDirection + Vector3.new(1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.Space then
+        flyDirection = flyDirection + Vector3.new(0, 1, 0)
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then
+        flyDirection = flyDirection + Vector3.new(0, -1, 0)
+    end
+end)
+
+userInputService.InputEnded:Connect(function(input)
+    flyDirection = Vector3.zero -- Dừng di chuyển khi nhả phím
+end)
+
+-- Cập nhật vị trí bay theo hướng và tốc độ
+spawn(function()
+    while true do
+        if flying and platform then
+            platform.CFrame = platform.CFrame + flyDirection * speed * 0.03
+        end
+        wait(0.03)
+    end
+end)
 
 -- Khởi tạo giao diện
 OrionLib:Init()
