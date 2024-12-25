@@ -8,7 +8,7 @@ local PlayerName = LocalPlayer.DisplayName -- Tên hiển thị của người c
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
-    Name = "Rielsick Hub - Welcome back, " .. PlayerName .. "!", -- Tên giao diện chào mừng người chơi
+    Name = "Rielsick Hub", -- Tên giao diện (loại bỏ chữ "Welcome back")
     HidePremium = false, -- Hiển thị các tính năng Premium
     SaveConfig = true, -- Lưu cấu hình người dùng
     ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình
@@ -37,11 +37,17 @@ local flying = false -- Trạng thái bay
 local speed = 40 -- Tốc độ bay mặc định
 local flyDirection = Vector3.zero -- Hướng bay
 
--- Phương pháp bay mới
+-- Phương pháp bay cải tiến để tránh bị kẹt
 local function handleFly()
     local player = LocalPlayer -- Người chơi hiện tại
     local character = player.Character or player.CharacterAdded:Wait() -- Đợi nhân vật của người chơi
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart") -- Phần trung tâm di chuyển
+
+    -- Xóa các lực cũ để tránh xung đột
+    if humanoidRootPart:FindFirstChild("BodyVelocity") then
+        humanoidRootPart.BodyVelocity:Destroy()
+    end
+
     local bodyVelocity = Instance.new("BodyVelocity") -- Tạo lực bay
     bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5) -- Đặt lực tối đa
     bodyVelocity.Parent = humanoidRootPart -- Gắn lực bay vào nhân vật
@@ -69,9 +75,9 @@ userInputService.InputBegan:Connect(function(input)
     elseif input.KeyCode == Enum.KeyCode.D then
         flyDirection = Vector3.new(1, 0, 0) -- Sang phải
     elseif input.KeyCode == Enum.KeyCode.Space then
-        flyDirection = Vector3.new(0, 1, 0) -- Bay lên
+        flyDirection = flyDirection + Vector3.new(0, 1, 0) -- Bay lên
     elseif input.KeyCode == Enum.KeyCode.LeftShift then
-        flyDirection = Vector3.new(0, -1, 0) -- Bay xuống
+        flyDirection = flyDirection + Vector3.new(0, -1, 0) -- Bay xuống
     end
 end)
 
