@@ -2,72 +2,74 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- Lấy tên người chơi
-local Players = game:GetService("Players") -- Dịch vụ quản lý người chơi
-local LocalPlayer = Players.LocalPlayer -- Người chơi hiện tại
-local PlayerName = LocalPlayer.DisplayName -- Tên hiển thị của người chơi
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerName = LocalPlayer.DisplayName
+
+-- Lấy dịch vụ UserInputService để xử lý đầu vào từ người chơi
+local userInputService = game:GetService("UserInputService")
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
-    Name = "Rielsick Hub", -- Tên giao diện chính
-    HidePremium = false, -- Hiển thị các tính năng Premium
-    SaveConfig = true, -- Lưu cấu hình người dùng
-    ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình
-    IntroEnabled = true, -- Hiển thị màn hình giới thiệu
-    IntroText = "Welcome to Rielsick Hub!", -- Văn bản giới thiệu
-    MinimizeButton = true, -- Cho phép thu nhỏ giao diện
-    DragToggle = true -- Bật tính năng kéo UI khi thu nhỏ
+    Name = "Rielsick Hub",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "RielsickHub",
+    IntroEnabled = true,
+    IntroText = "Welcome to Rielsick Hub!",
+    MinimizeButton = true,
+    DragToggle = true
 })
 
 -- Hiển thị thông báo "Script Loaded!!"
 OrionLib:MakeNotification({
-    Name = "Script Loaded!!", -- Tiêu đề thông báo
-    Content = "Welcome back!! " .. PlayerName, -- Nội dung thông báo
-    Image = "rbxassetid://4483345998", -- Icon thông báo
-    Time = 5 -- Thời gian hiển thị
+    Name = "Script Loaded!!",
+    Content = "Welcome back!! " .. PlayerName,
+    Image = "rbxassetid://4483345998",
+    Time = 5
 })
 
 -- Tạo tab chính trong giao diện
 local MainTab = Window:MakeTab({
-    Name = "Home", -- Tên tab
-    Icon = "rbxassetid://4483345998", -- Icon tab
-    PremiumOnly = false -- Không giới hạn Premium
+    Name = "Home",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
 })
 
 -- Biến toàn cục
-local flying = false -- Trạng thái bật/tắt bay
-local platform -- Biến lưu giữ khối nâng nhân vật
-local defaultHeight = 3 -- Độ cao mặc định của khối so với nhân vật
-local speed = 40 -- Tốc độ di chuyển theo joystick
+local flying = false
+local platform
+local defaultHeight = 3
+local speed = 40
 
 -- Hàm tạo khối nền tảng
 local function createPlatform()
-    if not platform then -- Chỉ tạo khối nếu nó chưa tồn tại
-        platform = Instance.new("Part") -- Tạo một khối mới
-        platform.Size = Vector3.new(4, 1, 4) -- Kích thước của khối
-        platform.Anchored = true -- Giữ khối cố định
-        platform.CanCollide = true -- Khối có thể va chạm với nhân vật
-        platform.Transparency = 1 -- Làm khối tàng hình
-        platform.Parent = workspace -- Thêm khối vào thế giới trò chơi
+    if not platform then
+        platform = Instance.new("Part")
+        platform.Size = Vector3.new(4, 1, 4)
+        platform.Anchored = true
+        platform.CanCollide = true
+        platform.Transparency = 1
+        platform.Parent = workspace
     end
 end
 
 -- Hàm cập nhật vị trí của khối
 local function updatePlatform()
-    if platform then -- Kiểm tra xem khối đã tồn tại chưa
-        local character = LocalPlayer.Character -- Lấy nhân vật của người chơi
+    if platform then
+        local character = LocalPlayer.Character
         if character then
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") -- Lấy phần trung tâm nhân vật
-            local humanoid = character:FindFirstChildOfClass("Humanoid") -- Lấy Humanoid của nhân vật
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
             if humanoidRootPart and humanoid then
-                local moveDirection = humanoid.MoveDirection -- Lấy hướng di chuyển từ joystick
-                local verticalAdjustment = 0 -- Điều chỉnh độ cao
-                -- Tăng hoặc giảm độ cao dựa vào trạng thái nhảy/cúi
+                local moveDirection = humanoid.MoveDirection
+                local verticalAdjustment = 0
+                -- Điều chỉnh độ cao theo trạng thái phím nhảy/cúi
                 if userInputService:IsKeyDown(Enum.KeyCode.Space) then
-                    verticalAdjustment = 1 -- Bay lên
+                    verticalAdjustment = 1
                 elseif userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    verticalAdjustment = -1 -- Bay xuống
+                    verticalAdjustment = -1
                 end
-                -- Cập nhật vị trí khối dựa vào hướng joystick và điều chỉnh độ cao
                 platform.Position = humanoidRootPart.Position 
                     + Vector3.new(moveDirection.X, verticalAdjustment, moveDirection.Z) * speed * 0.03
             end
@@ -77,25 +79,25 @@ end
 
 -- Bật/Tắt bay
 MainTab:AddToggle({
-    Name = "Enable Fly", -- Tên của toggle
-    Default = false, -- Mặc định toggle ở trạng thái tắt
-    Callback = function(toggleValue) -- Hàm callback được kích hoạt khi toggle thay đổi trạng thái
-        flying = toggleValue -- Cập nhật trạng thái bay
+    Name = "Enable Fly",
+    Default = false,
+    Callback = function(toggleValue)
+        flying = toggleValue
         if flying then
-            createPlatform() -- Tạo khối nếu bật bay
-            spawn(function() -- Chạy một luồng riêng để xử lý liên tục
+            createPlatform()
+            spawn(function()
                 while flying do
-                    updatePlatform() -- Cập nhật vị trí khối liên tục khi bay
-                    wait(0.03) -- Giảm tải CPU bằng cách thêm thời gian chờ
+                    updatePlatform()
+                    wait(0.03)
                 end
                 if platform then
-                    platform:Destroy() -- Xóa khối nếu tắt bay
+                    platform:Destroy()
                     platform = nil
                 end
             end)
         else
             if platform then
-                platform:Destroy() -- Xóa khối nếu toggle bị tắt
+                platform:Destroy()
                 platform = nil
             end
         end
@@ -105,7 +107,7 @@ MainTab:AddToggle({
 -- Xóa thông báo quảng cáo "new update" của UI
 local UISettings = OrionLib.UISettings
 if UISettings and UISettings.NewUpdateNotification then
-    UISettings.NewUpdateNotification = nil -- Xóa phần tử thông báo
+    UISettings.NewUpdateNotification = nil
 end
 
 -- Khởi tạo giao diện
