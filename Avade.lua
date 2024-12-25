@@ -1,92 +1,90 @@
 -- Tải thư viện giao diện Orion
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
--- Tải thư viện giao diện từ URL chính thức.
--- `game:HttpGet` tải mã nguồn từ URL.
--- `loadstring` chuyển đổi mã tải về thành hàm Lua, giúp sử dụng thư viện OrionLib.
+
+-- Lấy tên người chơi
+local Players = game:GetService("Players") -- Dịch vụ quản lý người chơi
+local LocalPlayer = Players.LocalPlayer -- Người chơi hiện tại
+local PlayerName = LocalPlayer.DisplayName -- Tên hiển thị của người chơi
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
-    Name = "Rielsick Hub", -- Tên giao diện sẽ hiển thị trên thanh tiêu đề
-    HidePremium = false, -- Hiển thị hoặc ẩn các tính năng Premium
-    SaveConfig = true, -- Lưu cấu hình của người dùng (bật/tắt toggle, v.v.)
-    ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình (nếu SaveConfig = true)
-    IntroEnabled = true, -- Bật màn hình giới thiệu
-    IntroText = "Welcome to Rielsick Hub!" -- Văn bản hiển thị trên màn hình giới thiệu
+    Name = "Rielsick Hub - Welcome back, " .. PlayerName .. "!", -- Tên giao diện chào mừng người chơi
+    HidePremium = false, -- Hiển thị các tính năng Premium
+    SaveConfig = true, -- Lưu cấu hình người dùng
+    ConfigFolder = "RielsickHub", -- Thư mục lưu cấu hình
+    IntroEnabled = true, -- Hiển thị màn hình giới thiệu
+    IntroText = "Welcome to Rielsick Hub!", -- Văn bản màn hình giới thiệu
+    MinimizeButton = true -- Cho phép thu nhỏ giao diện
 })
--- `MakeWindow` tạo cửa sổ chính của giao diện Orion.
--- Các thiết lập này định cấu hình giao diện như tên, lưu cấu hình, hoặc ẩn tính năng cao cấp.
 
--- Tạo tab chính cho giao diện
-local MainTab = Window:MakeTab({
-    Name = "Home", -- Tên tab hiển thị trong giao diện
-    Icon = "rbxassetid://4483345998", -- Icon đại diện của tab (có thể thay asset ID)
-    PremiumOnly = false -- Không giới hạn cho người dùng không Premium
+-- Hiển thị thông báo "Script Loaded!!"
+OrionLib:MakeNotification({
+    Name = "Script Loaded!!", -- Tiêu đề thông báo
+    Content = "Welcome back!! " .. PlayerName, -- Nội dung thông báo
+    Image = "rbxassetid://4483345998", -- Icon thông báo
+    Time = 5 -- Thời gian hiển thị
 })
--- `MakeTab` tạo một tab trong giao diện.
--- Tab này có thể chứa các mục con như Toggle, Button, TextBox.
+
+-- Tạo tab chính trong giao diện
+local MainTab = Window:MakeTab({
+    Name = "Home", -- Tên tab
+    Icon = "rbxassetid://4483345998", -- Icon tab
+    PremiumOnly = false -- Không giới hạn Premium
+})
 
 -- Biến toàn cục
-local flying = false -- Biến kiểm soát trạng thái bay (true/false)
+local flying = false -- Trạng thái bay
 local speed = 40 -- Tốc độ bay mặc định
-local isJumping = false -- Kiểm tra nếu người chơi nhấn phím nhảy (Space)
+local flyDirection = Vector3.zero -- Hướng bay
 
--- Hàm xử lý cơ chế bay
+-- Phương pháp bay mới
 local function handleFly()
-    local player = game.Players.LocalPlayer -- Lấy người chơi hiện tại
+    local player = LocalPlayer -- Người chơi hiện tại
     local character = player.Character or player.CharacterAdded:Wait() -- Đợi nhân vật của người chơi
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart") -- Phần trung tâm để điều khiển chuyển động
-    local userInputService = game:GetService("UserInputService") -- Dịch vụ đầu vào (bàn phím, chuột)
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart") -- Phần trung tâm di chuyển
+    local bodyVelocity = Instance.new("BodyVelocity") -- Tạo lực bay
+    bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5) -- Đặt lực tối đa
+    bodyVelocity.Parent = humanoidRootPart -- Gắn lực bay vào nhân vật
 
-    spawn(function() -- Tạo luồng xử lý song song
-        while flying and humanoidRootPart do -- Lặp trong khi đang bay và nhân vật tồn tại
-            local velocity = Vector3.zero -- Vận tốc mặc định là 0
-            if isJumping then
-                velocity = velocity + Vector3.new(0, speed, 0) -- Bay lên nếu nhấn Space
-            end
-            if userInputService:IsKeyDown(Enum.KeyCode.W) then
-                velocity = velocity + humanoidRootPart.CFrame.LookVector * speed -- Tiến tới
-            end
-            if userInputService:IsKeyDown(Enum.KeyCode.S) then
-                velocity = velocity - humanoidRootPart.CFrame.LookVector * speed -- Lùi lại
-            end
-            if userInputService:IsKeyDown(Enum.KeyCode.A) then
-                velocity = velocity - humanoidRootPart.CFrame.RightVector * speed -- Sang trái
-            end
-            if userInputService:IsKeyDown(Enum.KeyCode.D) then
-                velocity = velocity + humanoidRootPart.CFrame.RightVector * speed -- Sang phải
-            end
-
-            humanoidRootPart.Velocity = velocity -- Cập nhật vận tốc của nhân vật
-            wait(0.03) -- Dừng ngắn để giảm tải CPU
+    -- Luồng bay
+    spawn(function()
+        while flying do
+            bodyVelocity.Velocity = flyDirection * speed -- Cập nhật hướng và tốc độ
+            wait(0.03) -- Dừng ngắn để tránh quá tải CPU
         end
-
-        if humanoidRootPart then
-            humanoidRootPart.Velocity = Vector3.zero -- Dừng nhân vật khi tắt chế độ bay
-        end
+        bodyVelocity:Destroy() -- Xóa lực bay khi dừng
     end)
 end
 
--- Lắng nghe sự kiện nhấn phím
-local userInputService = game:GetService("UserInputService")
+-- Lắng nghe sự kiện nhấn phím để di chuyển
+local userInputService = game:GetService("UserInputService") -- Dịch vụ nhận phím đầu vào
 
 userInputService.InputBegan:Connect(function(input)
-    if flying and input.KeyCode == Enum.KeyCode.Space then
-        isJumping = true -- Đặt trạng thái nhảy nếu nhấn Space
+    if input.KeyCode == Enum.KeyCode.W then
+        flyDirection = Vector3.new(0, 0, -1) -- Tiến tới
+    elseif input.KeyCode == Enum.KeyCode.S then
+        flyDirection = Vector3.new(0, 0, 1) -- Lùi lại
+    elseif input.KeyCode == Enum.KeyCode.A then
+        flyDirection = Vector3.new(-1, 0, 0) -- Sang trái
+    elseif input.KeyCode == Enum.KeyCode.D then
+        flyDirection = Vector3.new(1, 0, 0) -- Sang phải
+    elseif input.KeyCode == Enum.KeyCode.Space then
+        flyDirection = Vector3.new(0, 1, 0) -- Bay lên
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then
+        flyDirection = Vector3.new(0, -1, 0) -- Bay xuống
     end
 end)
 
 userInputService.InputEnded:Connect(function(input)
-    if flying and input.KeyCode == Enum.KeyCode.Space then
-        isJumping = false -- Tắt trạng thái nhảy nếu nhả Space
-    end
+    flyDirection = Vector3.zero -- Dừng di chuyển khi nhả phím
 end)
 
--- Thêm toggle bật/tắt chế độ bay vào giao diện
+-- Thêm Toggle bật/tắt chế độ bay
 MainTab:AddToggle({
-    Name = "Enable Fly", -- Tên của toggle
-    Default = false, -- Trạng thái mặc định là tắt
+    Name = "Enable Fly", -- Tên toggle
+    Default = false, -- Mặc định là tắt
     Callback = function(toggleValue)
-        flying = toggleValue -- Cập nhật biến trạng thái bay
+        flying = toggleValue -- Cập nhật trạng thái bay
         if flying then
             OrionLib:MakeNotification({
                 Name = "Flying Enabled", -- Tiêu đề thông báo
@@ -94,7 +92,7 @@ MainTab:AddToggle({
                 Image = "rbxassetid://4483345998", -- Icon thông báo
                 Time = 5 -- Thời gian hiển thị
             })
-            handleFly() -- Gọi hàm bay
+            handleFly() -- Bắt đầu bay
         else
             OrionLib:MakeNotification({
                 Name = "Flying Disabled", -- Tiêu đề thông báo
@@ -106,9 +104,9 @@ MainTab:AddToggle({
     end
 })
 
--- Thêm TextBox để nhập tốc độ bay
+-- Thêm TextBox để thay đổi tốc độ bay
 MainTab:AddTextbox({
-    Name = "Set Fly Speed", -- Tên của TextBox
+    Name = "Set Fly Speed", -- Tên TextBox
     Default = "40", -- Giá trị mặc định
     TextDisappear = true, -- Văn bản sẽ biến mất sau khi nhập
     Callback = function(newSpeedText)
@@ -124,7 +122,7 @@ MainTab:AddTextbox({
         else
             OrionLib:MakeNotification({
                 Name = "Invalid Speed", -- Tiêu đề thông báo
-                Content = "Please enter a valid number!", -- Thông báo nếu nhập sai
+                Content = "Please enter a valid number!", -- Nội dung thông báo
                 Image = "rbxassetid://4483345998", -- Icon thông báo
                 Time = 3 -- Thời gian hiển thị
             })
@@ -132,7 +130,5 @@ MainTab:AddTextbox({
     end
 })
 
--- Bắt buộc khởi tạo giao diện
+-- Khởi tạo giao diện
 OrionLib:Init()
--- `Init` khởi tạo toàn bộ giao diện đã cấu hình trước đó.
--- Nếu không gọi hàm này, giao diện sẽ không hiển thị.
