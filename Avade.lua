@@ -3,12 +3,12 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Tạo cửa sổ chính của giao diện với các thiết lập cụ thể
 local Window = Rayfield:CreateWindow({
-   Name = "Skibidi Hub🤡",
+   Name = "Rielsick Hub",
    Icon = 0,
-   LoadingTitle = "Skibidi hub🤡",
+   LoadingTitle = "Rielsick Hub",
    LoadingSubtitle = "by Profess",
    Theme = "Default",
-   DisableRayfieldPrompts = false,
+   DisableRayfieldPrompts = true,
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil,
@@ -23,10 +23,13 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Hiển thị thông báo khi script được tải xong
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerName = LocalPlayer.DisplayName
 Rayfield:Notify({
    Title = "Script Loaded",
-   Content = "Skibidi Hub🤡 đã sẵn sàng sử dụng!",
-   Duration = 5,
+   Content = "Welcome back! .. PlayerName ",
+   Duration = 3,
    Image = nil
 })
 
@@ -36,7 +39,7 @@ local Section = MainTab:CreateSection("Main")
 
 -- Biến kiểm soát trạng thái bay và tốc độ bay
 local flying = false
-local speed = 50 -- Tốc độ bay mặc định
+local speed = 40 -- Tốc độ bay mặc định
 local flyDirection = Vector3.zero -- Hướng di chuyển
 local isJumping = false -- Kiểm tra nếu người chơi giữ phím nhảy
 local shiftLock = game.Players.LocalPlayer.DevEnableMouseLock -- Lưu trạng thái shift lock ban đầu
@@ -153,13 +156,13 @@ local SpeedTextBox = MainTab:CreateTextBox({
          speed = math.clamp(newSpeed, 10, 200) -- Đảm bảo tốc độ trong phạm vi hợp lệ
          Rayfield:Notify({
             Title = "Speed Updated",
-            Content = "Tốc độ bay đã được đặt thành " .. speed,
+            Content = "Set speed to " .. speed,
             Duration = 3
          })
       else
          Rayfield:Notify({
             Title = "Invalid Input",
-            Content = "Vui lòng nhập một số hợp lệ.",
+            Content = "Wrong value!",
             Duration = 3
          })
       end
