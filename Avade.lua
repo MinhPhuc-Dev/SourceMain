@@ -151,11 +151,11 @@ end)
 
 local function speed(Wp)
     local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:wait()
-    local humanoid = Character.FindFirstChildOfClass(Humanoid)
+    local humanoid = Character:FindFirstChildOfClass(Humanoid)
     Speed = true
     if humanoid then 
         print("Founded Humanoid")
-        humanoid.Walkspeed = Wp
+        humanoid.WalkSpeed = Wp
     else
         print("Can't find Humanoid")
     end        
@@ -164,11 +164,12 @@ MainTab:AddToggle({
     Name = "Speed",
     Default = false,
     Callback = function(toggleValue)
+
         if toggleValue then
-            Wp = 100
+            local Wp = 100
             speed(Wp)
         else
-            Wp = 16
+            local Wp = 16
             speed(Wp)
 })
 -- Khởi tạo giao diện
