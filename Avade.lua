@@ -38,31 +38,19 @@ Fluent:Notify({
     Content = "Welcome back, " .. PlayerName,
     Duration = 3
 })
-
-MainTab:AddToggle("Toggle Ui", {
-    Title = "Toggle Ui",
-    Default = true,
-    Callback = function(toggleValue)
-        if toggleValue then
-            Window:SetVisible(toggleValue) -- Hiển thị giao diện
-            Fluent:Notify({
-                Title = "Ui Toggled",
-                Content = "Opened the UI.",
-                Duration = 2
-            })
-        else
-            Window:SetVisible(toggleValue) -- Ẩn giao diện
-            Fluent:Notify({
-                Title = "Ui Toggled",
-                Content = "Closed",
-                Duration = 2
-            })
-        end
-
-    end
-
-})
-
+-- toggle bat tat UI * Doc lap khong su dung Fluent* hinh tron
+local function CreateToggleUi()
+    local Toggle = Instance.new("TextButton")
+    Toggle.Name = "Toggle"
+    Toggle.Size = UDim2.new(0, 50, 0, 50)
+    Toggle.Position = UDim2.new(0, 0, 0, 0)
+    Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Toggle.Text = "ON/OFF"
+    Toggle.BorderSizePixel = 0
+    Toggle.AutoButtonColor = false
+    Toggle.ZIndex = 2
+    return Togglea
+end
 -- Thêm ô nhập để điều chỉnh tốc độ
 Tabs.Main:AddInput("SetSpeed", {
     Title = "Set Speed",
