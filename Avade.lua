@@ -7,7 +7,7 @@ local Window = Fluent:CreateWindow({
     Title = "RielSick Hub",
     SubTitle = "by Dora",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    Size = UDim2.fromOffset(380, 260),
     Acrylic = true,
     Theme = "Grey",
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -31,12 +31,36 @@ local flyspeed = 100
 local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
 local Aesp = false
-
+local MainTab = Tabs.Main
 -- Thông báo khi script được tải
 Fluent:Notify({
     Title = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
     Duration = 3
+})
+
+MainTab:AddToggle("Toggle Ui", {
+    Title = "Toggle Ui",
+    Default = true,
+    Callback = function(toggleValue)
+        if toggleValue then
+            Window:SetVisible(toggleValue) -- Hiển thị giao diện
+            Fluent:Notify({
+                Title = "Ui Toggled",
+                Content = "Opened the UI.",
+                Duration = 2
+            })
+        else
+            Window:SetVisible(toggleValue) -- Ẩn giao diện
+            Fluent:Notify({
+                Title = "Ui Toggled",
+                Content = "Closed",
+                Duration = 2
+            })
+        end
+
+    end
+
 })
 
 -- Thêm ô nhập để điều chỉnh tốc độ
