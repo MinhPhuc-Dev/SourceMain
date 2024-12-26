@@ -195,6 +195,7 @@ Tabs.Main:AddToggle("EspPlayer", {
 local function FindPlayerKnife()
     local item = GameWS:FindFirstChild("Knife")
     if item then
+        print("FoundedFoundedFoundedFoundedFoundedFoundedFounded")
         local PlayerHoldKnife = item.Parent
         local PHKName = PlayerHoldKnife.Name
         if PlayerHoldKnife then
