@@ -203,6 +203,28 @@ local function FindPlayerKnife()
     end
 end
 
+-- Thêm Toggle cho tính năng FindPlayerKnife
+Tabs.Main:AddToggle("FindPlayerKnife", {
+    Title = "Find Player Knife",
+    Default = false,
+    Callback = function(toggleValue)
+        if toggleValue then
+            FindPlayerKnife()
+            Fluent:Notify({
+                Title = "Function on",
+                Content = "Find Player Knife has been enabled.",
+                Duration = 2
+            })
+        else
+            Fluent:Notify({
+                Title = "Function off",
+                Content = "Find Player Knife has been disabled.",
+                Duration = 2
+            })
+        end
+    end
+})
+
 -- Addons:
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
