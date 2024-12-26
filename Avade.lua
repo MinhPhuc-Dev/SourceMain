@@ -9,6 +9,7 @@ local GameWS = game.Workspace
 
 -- Tạo cửa sổ giao diện chính
 local Window = Fluent:CreateWindow({
+    Title = "Rielsick Hub",
     Name = "Rielsick Hub",
     HidePremium = false,
     SaveConfig = false,
