@@ -40,6 +40,9 @@ local function Fly()
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
+    local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+    if not humanoid then return end
+
     flying = true
 
     -- Tạo BodyVelocity và BodyGyro
@@ -54,7 +57,7 @@ local function Fly()
     bg.Parent = hrp
 
     -- Cập nhật chuyển động và góc quay
-    local con = game:GetService("RunService").Stepped:Connect(function()
+    local con = game:GetService("RunService").Stepped:Connect(function(_, dt)
         if not flying then
             con:Disconnect()
             bv:Destroy()
