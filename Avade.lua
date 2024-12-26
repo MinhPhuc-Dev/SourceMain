@@ -129,22 +129,43 @@ Tabs.Main:AddToggle("SpeedBoost", {
 -- Function Esp player
 local function EspPlayer()
     local Players = game:GetService("Players")
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local Character = player.Character or player.CharacterAdded:Wait()
-            local head = Character:FindFirstChild("Head")
+    local adornments = {}
 
-            if head then
-                local box = Instance.new("BoxHandleAdornment")
-                box.Size = head.Size
-                box.Adornee = head
-                box.Color3 = Color3.fromRGB(255, 0, 0)
-                box.AlwaysOnTop = true
-                box.ZIndex = 5
-                box.Parent = head
+    local function createBox(character)
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local box = Instance.new("BoxHandleAdornment")
+            box.Size = hrp.Size
+            box.Adornee = hrp
+            box.Color3 = Color3.fromRGB(255, 0, 0)
+            box.AlwaysOnTop = true
+            box.ZIndex = 5
+            box.Transparency = 0.5
+            box.Parent = hrp
+            adornments[character] = box
+        end
+    end
+
+    local function updateBoxes()
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                local character = player.Character
+                if character then
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        local box = adornments[character]
+                        if not box then
+                            createBox(character)
+                        else
+                            box.Size = hrp.Size
+                        end
+                    end
+                end
             end
         end
     end
+
+    game:GetService("RunService").RenderStepped:Connect(updateBoxes)
 end
 
 -- Thêm Toggle cho tính năng Esp
@@ -171,6 +192,17 @@ Tabs.Main:AddToggle("EspPlayer", {
     end
 })
 
+local function FindPlayerKnife()
+    local item = GameWS:FindFirstChild("Knife")
+    if item then
+        local PlayerHoldKnife = item.Parent
+        local PHKName = PlayerHoldKnife.Name
+        if PlayerHoldKnife then
+            print("Murder is: " .. PHKName)
+        end
+    end
+end
+
 -- Addons:
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -190,47 +222,6 @@ Fluent:Notify({
     Title = "Fluent",
     Content = "The script has been loaded.",
     Duration = 8
-})
-
-local function AutocollectCandy()
-    local GroupNames = {"Ticket1", "Ticket2", "Ticket3", "Ticket4", "Ticket5", "Ticket6", "Ticket7", "Ticket8", "Ticket9", "Ticket10"}
-    for _, groupName in ipairs(GroupNames) do
-        local Group = GameWS:FindFirstChild(groupName)
-        if Group then
-            for _, v in ipairs(Group:GetChildren()) do
-                if v:IsA("BasePart") then
-                    local TicketPos = v.Position
-                    print("TicketPos: " .. tostring(TicketPos))
-                end
-            end
-        else
-            print("Không tìm thấy nhóm " .. groupName)
-        end
-    end
-end
-
--- add toggle auto collect candy
-Tabs.Main:AddToggle("AutoCollectCandy", {
-    Title = "Auto Collect Candy",
-    Default = false,
-    Callback = function(toggleValue)
-        Aesp = toggleValue
-
-        if Aesp then
-            AutocollectCandy()
-            Fluent:Notify({
-                Title = "Function on",
-                Content = "Auto collect candy has been enabled.",
-                Duration = 2
-            })
-        else
-            Fluent:Notify({
-                Title = "Function off",
-                Content = "Auto collect candy has been disabled.",
-                Duration = 2
-            })
-        end
-    end
 })
 
 SaveManager:LoadAutoloadConfig()
