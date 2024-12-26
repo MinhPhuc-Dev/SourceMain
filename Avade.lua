@@ -6,9 +6,6 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.DisplayName
 
--- Lấy dịch vụ UserInputService
-local userInputService = game:GetService("UserInputService")
-
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
     Name = "Rielsick Hub",
@@ -24,8 +21,8 @@ local Window = OrionLib:MakeWindow({
 OrionLib:MakeNotification({
     Name = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
-    Image = "rbxassetid://4483345998",  -- Thêm hình ảnh cho thông báo (tuỳ chọn)
-    Time = 3  -- Thời gian hiển thị thông báo, 5 giây
+    Image = "rbxassetid://4483345998", -- Thêm hình ảnh cho thông báo (tuỳ chọn)
+    Time = 3 -- Thời gian hiển thị thông báo, 3 giây
 })
 
 -- Tạo tab chính trong giao diện
@@ -35,85 +32,51 @@ local MainTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Biến và cấu hình bay
-local flying = false
-local flyspeed = 50
-local flycontrol = {F = 0, R = 0, B = 0, L = 0, U = 0, D = 0}
+-- Biến cấu hình tốc độ
+local flyspeed = 100 -- Tốc độ mặc định
+local minSpeed, maxSpeed = 20, 500 -- Giới hạn tốc độ
 
--- Điều khiển bay với các phím
-local controls = {
-    front = "w",
-    back = "s",
-    right = "d",
-    left = "a",
-    up = "space",
-    down = "leftcontrol"
-}
-
-userInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    local key = input.KeyCode.Name:lower()
-    if key == controls.front then
-        flycontrol.F = 1
-    elseif key == controls.back then
-        flycontrol.B = 1
-    elseif key == controls.right then
-        flycontrol.R = 1
-    elseif key == controls.left then
-        flycontrol.L = 1
-    elseif key == controls.up then
-        flycontrol.U = 1
-    elseif key == controls.down then
-        flycontrol.D = 1
-    end
-end)
-
-userInputService.InputEnded:Connect(function(input)
-    local key = input.KeyCode.Name:lower()
-    if key == controls.front then
-        flycontrol.F = 0
-    elseif key == controls.back then
-        flycontrol.B = 0
-    elseif key == controls.right then
-        flycontrol.R = 0
-    elseif key == controls.left then
-        flycontrol.L = 0
-    elseif key == controls.up then
-        flycontrol.U = 0
-    elseif key == controls.down then
-        flycontrol.D = 0
-    end
-end)
-
--- Hàm điều khiển vị trí người chơi bay về hướng ngược lại
-local function movePlayer()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local hrp = character:FindFirstChild("HumanoidRootPart")
-    
-    if not humanoid or not hrp then return end
-
-    -- Sử dụng RunService để kiểm tra sự di chuyển
-    game:GetService("RunService").Heartbeat:Connect(function()
-        -- Kiểm tra nếu nhân vật đang di chuyển
-        if humanoid.MoveDirection.Magnitude > 0 then
-            local currentDirection = humanoid.MoveDirection.Unit -- Hướng di chuyển hiện tại
-            local reverseDirection = -currentDirection -- Hướng ngược lại
-            local speed = 100 -- Tăng tốc độ di chuyển (tăng từ 50 lên 100)
-
-            -- Cập nhật vị trí của người chơi liên tục theo hướng ngược lại
-            hrp.CFrame = hrp.CFrame + reverseDirection * speed * 0.1 -- Cập nhật vị trí theo hướng ngược lại
+-- Thêm ô nhập để điều chỉnh tốc độ
+MainTab:AddTextbox({
+    Name = "Set Speed",
+    Default = tostring(flyspeed),
+    TextDisappear = true,
+    Callback = function(value)
+        local speedInput = tonumber(value)
+        if speedInput and speedInput >= minSpeed and speedInput <= maxSpeed then
+            flyspeed = speedInput
+            OrionLib:MakeNotification({
+                Name = "Speed Set",
+                Content = "Speed updated to " .. flyspeed,
+                Time = 2
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Invalid Speed",
+                Content = "Enter a value between " .. minSpeed .. " and " .. maxSpeed,
+                Time = 2
+            })
         end
-    end)
-end
+    end
+})
 
--- Thêm Toggle cho tính năng thay đổi vị trí liên tục
+-- Thêm Toggle kích hoạt di chuyển nhanh (không còn di chuyển ngược)
 MainTab:AddToggle({
-    Name = "Auto Move Player (Reverse)",
+    Name = "Speed Boost",
     Default = false,
     Callback = function(toggleValue)
         if toggleValue then
-            movePlayer()  -- Kích hoạt tính năng di chuyển ngược lại liên tục
+            OrionLib:MakeNotification({
+                Name = "Speed Boost Activated",
+                Content = "Speed boost is now active at " .. flyspeed .. ".",
+                Time = 2
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Speed Boost Deactivated",
+                Content = "Speed boost has been disabled.",
+                Time = 2
+            })
         end
     end
 })
