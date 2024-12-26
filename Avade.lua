@@ -36,79 +36,140 @@ local MainTab = Window:MakeTab({
     PremiumOnly = false
 })
 
--- Biến toàn cục
-local flying = false
-local platform
-local defaultHeight = 3
-local speed = 40
-
--- Hàm tạo khối nền tảng
-local function createPlatform()
-    if not platform then
-        platform = Instance.new("Part")
-        platform.Size = Vector3.new(4, 1, 4)
-        platform.Anchored = true
-        platform.CanCollide = true
-        platform.Transparency = 1
-        platform.Parent = workspace
-    end
-end
-
--- Hàm cập nhật vị trí của khối
-local function updatePlatform()
-    if platform then
-        local character = LocalPlayer.Character
-        if character then
-            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoidRootPart and humanoid then
-                local moveDirection = humanoid.MoveDirection
-                local verticalAdjustment = 0
-                -- Điều chỉnh độ cao theo trạng thái phím nhảy/cúi
-                if userInputService:IsKeyDown(Enum.KeyCode.Space) then
-                    verticalAdjustment = 1
-                elseif userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    verticalAdjustment = -1
-                end
-                platform.Position = humanoidRootPart.Position 
-                    + Vector3.new(moveDirection.X, verticalAdjustment, moveDirection.Z) * speed * 0.03
-            end
-        end
-    end
-end
-
--- Bật/Tắt bay
-MainTab:AddToggle({
-    Name = "Enable Fly",
-    Default = false,
-    Callback = function(toggleValue)
-        flying = toggleValue
-        if flying then
-            createPlatform()
-            spawn(function()
-                while flying do
-                    updatePlatform()
-                    wait(0.03)
-                end
-                if platform then
-                    platform:Destroy()
-                    platform = nil
-                end
-            end)
-        else
-            if platform then
-                platform:Destroy()
-                platform = nil
-            end
-        end
-    end
-})
-
 -- Xóa thông báo quảng cáo "new update" của UI
 local UISettings = OrionLib.UISettings
 if UISettings and UISettings.NewUpdateNotification then
     UISettings.NewUpdateNotification = nil
 end
 
+-- Biến và cấu hình bay
+local flying = false
+local flyspeed = 50
+local flycontrol = {F = 0, R = 0, B = 0, L = 0, U = 0, D = 0}
+
+local function Fly()
+    local character = LocalPlayer.Character
+    if not character then return end
+
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+    if not humanoid then return end
+
+    flying = true
+
+    -- Tạo BodyVelocity và BodyGyro
+    local bv = Instance.new("BodyVelocity")
+    local bg = Instance.new("BodyGyro")
+
+    bv.MaxForce = Vector3.new(9e4, 9e4, 9e4)  -- Tăng sức mạnh tối đa của lực đẩy.
+    bg.CFrame = hrp.CFrame
+    bg.MaxTorque = Vector3.new(9e4, 9e4, 9e4)  -- Tăng sức mạnh tối đa của mô-men xoắn.
+    bg.P = 9e4
+    bv.Parent = hrp
+    bg.Parent = hrp
+
+    -- Cập nhật chuyển động và góc quay
+    local con = game:GetService("RunService").Stepped:Connect(function(_, dt)
+        if not flying then
+            con:Disconnect()
+            bv:Destroy()
+            bg:Destroy()
+        end
+        
+        -- Điều khiển di chuyển và quay
+        bv.Velocity = (workspace.CurrentCamera.CFrame.LookVector * ((flycontrol.F - flycontrol.B) * flyspeed)) +
+                      (workspace.CurrentCamera.CFrame.RightVector * ((flycontrol.R - flycontrol.L) * flyspeed)) +
+                      (workspace.CurrentCamera.CFrame.UpVector * ((flycontrol.U - flycontrol.D) * flyspeed))
+        bg.CFrame = workspace.CurrentCamera.CFrame
+    end)
+end
+
+-- Tạo toggle cho chức năng bay trong giao diện
+MainTab:AddToggle({
+    Name = "Enable Fly",
+    Default = false,
+    Callback = function(toggleValue)
+        if toggleValue then
+            Fly()  -- Kích hoạt chức năng bay khi bật toggle
+        else
+            flying = false  -- Dừng bay khi tắt toggle
+        end
+    end
+})
+
+-- Điều khiển bay với các phím
+local controls = {
+    front = "w",
+    back = "s",
+    right = "d",
+    left = "a",
+    up = "space",
+    down = "leftcontrol"
+}
+
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    local key = input.KeyCode.Name:lower()
+
+    -- Kiểm tra các phím để di chuyển khi bay
+    if key == controls.front then
+        flycontrol.F = 1
+    elseif key == controls.back then
+        flycontrol.B = 1
+    elseif key == controls.right then
+        flycontrol.R = 1
+    elseif key == controls.left then
+        flycontrol.L = 1
+    elseif key == controls.up then
+        flycontrol.U = 1
+    elseif key == controls.down then
+        flycontrol.D = 1
+    end
+end)
+
+userInputService.InputEnded:Connect(function(input)
+    local key = input.KeyCode.Name:lower()
+    
+    -- Kiểm tra khi người chơi ngừng nhấn phím
+    if key == controls.front then
+        flycontrol.F = 0
+    elseif key == controls.back then
+        flycontrol.B = 0
+    elseif key == controls.right then
+        flycontrol.R = 0
+    elseif key == controls.left then
+        flycontrol.L = 0
+    elseif key == controls.up then
+        flycontrol.U = 0
+    elseif key == controls.down then
+        flycontrol.D = 0
+    end
+end)
+
+local function speed(Wp)
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:wait()
+    local humanoid = Character.FindFirstChildOfClass(Humanoid)
+    Speed = true
+    if humanoid then 
+        print("Founded Humanoid")
+        humanoid.Walkspeed = Wp
+    else
+        print("Can't find Humanoid")
+    end        
+end
+MainTab:AddToggle({
+    Name = "Speed",
+    Default = false,
+    Callback = function(toggleValue)
+        if toggleValue then
+            Wp = 100
+            speed(Wp)
+        else
+            Wp = 16
+            speed(Wp)
+})
 -- Khởi tạo giao diện
 OrionLib:Init()
