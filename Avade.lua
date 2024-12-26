@@ -32,12 +32,14 @@ local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
 local Aesp = false
 local MainTab = Tabs.Main
+
 -- Thông báo khi script được tải
 Fluent:Notify({
     Title = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
     Duration = 3
 })
+
 -- toggle bat tat UI * Doc lap khong su dung Fluent* hinh tron
 local function CreateToggleUi()
     local Toggle = Instance.new("TextButton")
@@ -49,8 +51,9 @@ local function CreateToggleUi()
     Toggle.BorderSizePixel = 0
     Toggle.AutoButtonColor = false
     Toggle.ZIndex = 2
-    return Togglea
+    return Toggle
 end
+
 -- Thêm ô nhập để điều chỉnh tốc độ
 Tabs.Main:AddInput("SetSpeed", {
     Title = "Set Speed",
@@ -187,6 +190,47 @@ Fluent:Notify({
     Title = "Fluent",
     Content = "The script has been loaded.",
     Duration = 8
+})
+
+local function AutocollectCandy()
+    local GroupNames = {"Ticket1", "Ticket2", "Ticket3", "Ticket4", "Ticket5", "Ticket6", "Ticket7", "Ticket8", "Ticket9", "Ticket10"}
+    for _, groupName in ipairs(GroupNames) do
+        local Group = GameWS:FindFirstChild(groupName)
+        if Group then
+            for _, v in ipairs(Group:GetChildren()) do
+                if v:IsA("BasePart") then
+                    local TicketPos = v.Position
+                    print("TicketPos: " .. tostring(TicketPos))
+                end
+            end
+        else
+            print("Không tìm thấy nhóm " .. groupName)
+        end
+    end
+end
+
+-- add toggle auto collect candy
+Tabs.Main:AddToggle("AutoCollectCandy", {
+    Title = "Auto Collect Candy",
+    Default = false,
+    Callback = function(toggleValue)
+        Aesp = toggleValue
+
+        if Aesp then
+            AutocollectCandy()
+            Fluent:Notify({
+                Title = "Function on",
+                Content = "Auto collect candy has been enabled.",
+                Duration = 2
+            })
+        else
+            Fluent:Notify({
+                Title = "Function off",
+                Content = "Auto collect candy has been disabled.",
+                Duration = 2
+            })
+        end
+    end
 })
 
 SaveManager:LoadAutoloadConfig()
