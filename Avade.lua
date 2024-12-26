@@ -2,16 +2,17 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- Lấy tên người chơi
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local PlayerName = LocalPlayer.DisplayName
+local Players = game:GetService("Players") -- Lấy thông tin về người chơi
+local LocalPlayer = Players.LocalPlayer-- Lấy thông tin người chơi đang chạy script
+local PlayerName = LocalPlayer.DisplayName -- Lấy tên người chơi
+local GameWS = game.Workspace -- Lấy thông tin về môi trường làm việc
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
     Name = "Rielsick Hub",
     HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "RielsickHub",
+    SaveConfig = false,
+    ConfigFolder = "Rielsick-Hub",
     IntroEnabled = true,
     IntroText = "Welcome to Rielsick Hub!",
     MinimizeButton = true,
@@ -35,6 +36,7 @@ local MainTab = Window:MakeTab({
 -- Biến cấu hình tốc độ
 local flyspeed = 100 -- Tốc độ mặc định
 local minSpeed, maxSpeed = 20, 500 -- Giới hạn tốc độ
+local moveEnabled = false -- Trạng thái di chuyển
 
 -- Thêm ô nhập để điều chỉnh tốc độ
 MainTab:AddTextbox({
@@ -52,7 +54,7 @@ MainTab:AddTextbox({
             })
         else
             OrionLib:MakeNotification({
-                Name = "Invalid Speed",
+                Name = "Invalid Value",
                 Content = "Enter a value between " .. minSpeed .. " and " .. maxSpeed,
                 Time = 2
             })
@@ -60,21 +62,50 @@ MainTab:AddTextbox({
     end
 })
 
--- Thêm Toggle kích hoạt di chuyển nhanh (không còn di chuyển ngược)
+-- Hàm điều khiển vị trí người chơi di chuyển theo hướng hiện tại
+local function moveForward()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    
+    if not humanoid or not hrp then return end
+
+    -- Sử dụng RunService để kiểm tra sự di chuyển
+    local connection
+    connection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not moveEnabled then
+            connection:Disconnect()
+            return
+        end
+        
+        -- Kiểm tra nếu nhân vật đang di chuyển
+        if humanoid.MoveDirection.Magnitude > 0 then
+            local currentDirection = humanoid.MoveDirection.Unit -- Hướng di chuyển hiện tại
+            local speed = flyspeed -- Tốc độ do người dùng nhập
+
+            -- Cập nhật vị trí của người chơi liên tục theo hướng hiện tại
+            hrp.CFrame = hrp.CFrame + currentDirection * speed * 0.1
+        end
+    end)
+end
+
+-- Thêm Toggle cho tính năng di chuyển thuận
 MainTab:AddToggle({
     Name = "Speed Boost",
     Default = false,
     Callback = function(toggleValue)
-        if toggleValue then
+        moveEnabled = toggleValue
+        if moveEnabled then
+            moveForward() -- Kích hoạt tính năng di chuyển
             OrionLib:MakeNotification({
-                Name = "Speed Boost Activated",
-                Content = "Speed boost is now active at " .. flyspeed .. ".",
+                Name = "Function on",
+                Content = "Set Speed To " .. flyspeed,
                 Time = 2
             })
         else
             OrionLib:MakeNotification({
-                Name = "Speed Boost Deactivated",
-                Content = "Speed boost has been disabled.",
+                Name = "Auto Move Deactivated",
+                Content = "Auto move has been disabled.",
                 Time = 2
             })
         end
