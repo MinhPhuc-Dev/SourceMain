@@ -1,5 +1,5 @@
--- Tải thư viện giao diện Orion
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+-- Tải thư viện giao diện Fluent
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 -- Lấy tên người chơi
 local Players = game:GetService("Players")
@@ -8,7 +8,7 @@ local PlayerName = LocalPlayer.DisplayName
 local GameWS = game.Workspace
 
 -- Tạo cửa sổ giao diện chính
-local Window = OrionLib:MakeWindow({
+local Window = Fluent:CreateWindow({
     Name = "Rielsick Hub",
     HidePremium = false,
     SaveConfig = false,
@@ -19,7 +19,7 @@ local Window = OrionLib:MakeWindow({
     DragToggle = true
 })
 
-OrionLib:MakeNotification({
+Fluent:MakeNotification({
     Name = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
     Image = "rbxassetid://4483345998",
@@ -27,7 +27,7 @@ OrionLib:MakeNotification({
 })
 
 -- Tạo tab chính trong giao diện
-local MainTab = Window:MakeTab({
+local MainTab = Window:CreateTab({
     Name = "Home",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
@@ -37,9 +37,10 @@ local MainTab = Window:MakeTab({
 local flyspeed = 100
 local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
+local Aesp = false
 
 -- Thêm ô nhập để điều chỉnh tốc độ
-MainTab:AddTextbox({
+MainTab:CreateTextbox({
     Name = "Set Speed",
     Default = tostring(flyspeed),
     TextDisappear = true,
@@ -47,13 +48,13 @@ MainTab:AddTextbox({
         local speedInput = tonumber(value)
         if speedInput and speedInput >= minSpeed and speedInput <= maxSpeed then
             flyspeed = speedInput
-            OrionLib:MakeNotification({
+            Fluent:MakeNotification({
                 Name = "Speed Set",
                 Content = "Speed updated to " .. flyspeed,
                 Time = 2
             })
         else
-            OrionLib:MakeNotification({
+            Fluent:MakeNotification({
                 Name = "Invalid Value",
                 Content = "Enter a value between " .. minSpeed .. " and " .. maxSpeed,
                 Time = 2
@@ -87,20 +88,20 @@ local function moveForward()
 end
 
 -- Thêm Toggle cho tính năng di chuyển thuận
-MainTab:AddToggle({
+MainTab:CreateToggle({
     Name = "Speed Boost",
     Default = false,
     Callback = function(toggleValue)
         moveEnabled = toggleValue
         if moveEnabled then
             moveForward()
-            OrionLib:MakeNotification({
+            Fluent:MakeNotification({
                 Name = "Function on",
                 Content = "Set Speed To " .. flyspeed,
                 Time = 2
             })
         else
-            OrionLib:MakeNotification({
+            Fluent:MakeNotification({
                 Name = "Auto Move Deactivated",
                 Content = "Auto move has been disabled.",
                 Time = 2
@@ -131,21 +132,21 @@ local function EspPlayer()
 end
 
 -- Thêm Toggle cho tính năng Esp
-MainTab:AddToggle({
+MainTab:CreateToggle({
     Name = "Esp player",
     Default = false,
     Callback = function(toggleValue)
         Aesp = toggleValue
 
-        EspPlayer()
         if Aesp then
-            OrionLib:MakeNotification({
+            EspPlayer()
+            Fluent:MakeNotification({
                 Name = "Function on",
                 Content = "Esp player has been enabled.",
                 Time = 2
             })
         else
-            OrionLib:MakeNotification({
+            Fluent:MakeNotification({
                 Name = "Function off",
                 Content = "Esp player has been disabled.",
                 Time = 2
@@ -155,4 +156,4 @@ MainTab:AddToggle({
 })
 
 -- Khởi tạo giao diện
-OrionLib:Init()
+Fluent:Init()
