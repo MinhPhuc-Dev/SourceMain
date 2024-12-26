@@ -21,6 +21,13 @@ local Window = OrionLib:MakeWindow({
     DragToggle = true
 })
 
+OrionLib:MakeNotification({
+    Name = "Script Loaded!!",
+    Content = "Welcome back, " .. PlayerName,
+    Image = "rbxassetid://4483345998",  -- Thêm hình ảnh cho thông báo (tuỳ chọn)
+    Time = 3  -- Thời gian hiển thị thông báo, 3 giây
+})
+
 -- Tạo tab chính trong giao diện
 local MainTab = Window:MakeTab({
     Name = "Home",
@@ -107,15 +114,14 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(toggleValue)
         if toggleValue then
-            local Wp = 100 -- Tốc độ cao
-            speed(Wp)
+            local speedValue = 100  -- Tốc độ cao
+            speed(speedValue)
         else
-            local Wp = 16 -- Tốc độ mặc định
-            speed(Wp)
+            local speedValue = 16 -- Tốc độ mặc định
+            speed(speedValue)
         end
     end
 })
 
 -- Khởi tạo giao diện
 OrionLib:Init()
-
