@@ -112,5 +112,56 @@ MainTab:AddToggle({
     end
 })
 
+-- Function Esp player
+local function EspPlayer()
+    local Player = game.Players:GetService("Players")
+    for _, player in pairs(Player:GetPlayers()) do
+        if player ~= LocalPlayer then    
+            
+            
+            local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid =  Character:FindFirstChild("Humanoid")
+            local head = Humanoid:FindFirstChild("Head")
+
+            if head then
+                local headpos = head.Position
+                if headpos then
+                    local box = Instance.new("BoxHandleAdornment")
+                    box.Size = head.Size
+                    box.Adornee = head -- Đặt vị trí của box
+                    box.Color3 = Color3.fromRGB(255, 0, 0) -- Màu sắc của box
+                    box.AlwaysOnTop = true
+                    box.ZIndex = 5 -- Độ sâu của box
+                    box.Parent = head -- Đặt box vào vị trí của head
+                end
+            end
+        end
+    end
+end
+
+-- Thêm Toggle cho tính năng Esp
+MainTab:AddToggle({
+    Name = "Esp player",
+    Default = false,
+    Callback = function(toggleValue)
+        Aesp = toggleValue
+
+        EspPlayer()
+        if Aesp then
+            OrionLib:MakeNotification({
+                Name = "Function on",
+                Content = "Esp player has been enabled.",
+                Time = 2
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Function off",
+                Content = "Esp player has been disabled.",
+                Time = 2
+            })
+        end
+    end
+})
+
 -- Khởi tạo giao diện
 OrionLib:Init()
