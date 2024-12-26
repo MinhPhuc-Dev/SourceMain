@@ -85,7 +85,7 @@ userInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Hàm điều khiển vị trí người chơi theo hướng đối diện
+-- Hàm điều khiển vị trí người chơi theo hướng đối diện với tốc độ tăng lên
 local function movePlayer()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -98,7 +98,7 @@ local function movePlayer()
         -- Kiểm tra nếu nhân vật đang di chuyển
         if humanoid.MoveDirection.Magnitude > 0 then
             local currentDirection = -humanoid.MoveDirection.Unit -- Đảo ngược hướng di chuyển
-            local speed = 50 -- Tốc độ di chuyển của người chơi
+            local speed = 100 -- Tăng tốc độ di chuyển (tăng từ 50 lên 100)
 
             -- Cập nhật vị trí của người chơi liên tục
             hrp.CFrame = hrp.CFrame + currentDirection * speed * 0.1 -- Cập nhật vị trí theo hướng đối diện
@@ -119,3 +119,4 @@ MainTab:AddToggle({
 
 -- Khởi tạo giao diện
 OrionLib:Init()
+
