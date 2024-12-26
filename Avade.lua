@@ -85,7 +85,7 @@ userInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Hàm điều khiển vị trí người chơi theo hướng đối diện với tốc độ tăng lên
+-- Hàm điều khiển vị trí người chơi bay về hướng ngược lại
 local function movePlayer()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -97,26 +97,26 @@ local function movePlayer()
     game:GetService("RunService").Heartbeat:Connect(function()
         -- Kiểm tra nếu nhân vật đang di chuyển
         if humanoid.MoveDirection.Magnitude > 0 then
-            local currentDirection = -humanoid.MoveDirection.Unit -- Đảo ngược hướng di chuyển
+            local currentDirection = humanoid.MoveDirection.Unit -- Hướng di chuyển hiện tại
+            local reverseDirection = -currentDirection -- Hướng ngược lại
             local speed = 100 -- Tăng tốc độ di chuyển (tăng từ 50 lên 100)
 
-            -- Cập nhật vị trí của người chơi liên tục
-            hrp.CFrame = hrp.CFrame + currentDirection * speed * 0.1 -- Cập nhật vị trí theo hướng đối diện
+            -- Cập nhật vị trí của người chơi liên tục theo hướng ngược lại
+            hrp.CFrame = hrp.CFrame + reverseDirection * speed * 0.1 -- Cập nhật vị trí theo hướng ngược lại
         end
     end)
 end
 
 -- Thêm Toggle cho tính năng thay đổi vị trí liên tục
 MainTab:AddToggle({
-    Name = "Auto Move Player",
+    Name = "Auto Move Player (Reverse)",
     Default = false,
     Callback = function(toggleValue)
         if toggleValue then
-            movePlayer()  -- Kích hoạt tính năng di chuyển liên tục
+            movePlayer()  -- Kích hoạt tính năng di chuyển ngược lại liên tục
         end
     end
 })
 
 -- Khởi tạo giao diện
 OrionLib:Init()
-
