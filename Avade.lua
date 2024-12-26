@@ -2,10 +2,10 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- Lấy tên người chơi
-local Players = game:GetService("Players") -- Lấy thông tin về người chơi
-local LocalPlayer = Players.LocalPlayer-- Lấy thông tin người chơi đang chạy script
-local PlayerName = LocalPlayer.DisplayName -- Lấy tên người chơi
-local GameWS = game.Workspace -- Lấy thông tin về môi trường làm việc
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerName = LocalPlayer.DisplayName
+local GameWS = game.Workspace
 
 -- Tạo cửa sổ giao diện chính
 local Window = OrionLib:MakeWindow({
@@ -22,8 +22,8 @@ local Window = OrionLib:MakeWindow({
 OrionLib:MakeNotification({
     Name = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
-    Image = "rbxassetid://4483345998", -- Thêm hình ảnh cho thông báo (tuỳ chọn)
-    Time = 3 -- Thời gian hiển thị thông báo, 3 giây
+    Image = "rbxassetid://4483345998",
+    Time = 3
 })
 
 -- Tạo tab chính trong giao diện
@@ -34,9 +34,9 @@ local MainTab = Window:MakeTab({
 })
 
 -- Biến cấu hình tốc độ
-local flyspeed = 100 -- Tốc độ mặc định
-local minSpeed, maxSpeed = 20, 500 -- Giới hạn tốc độ
-local moveEnabled = false -- Trạng thái di chuyển
+local flyspeed = 100
+local minSpeed, maxSpeed = 20, 500
+local moveEnabled = false
 
 -- Thêm ô nhập để điều chỉnh tốc độ
 MainTab:AddTextbox({
@@ -70,7 +70,6 @@ local function moveForward()
     
     if not humanoid or not hrp then return end
 
-    -- Sử dụng RunService để kiểm tra sự di chuyển
     local connection
     connection = game:GetService("RunService").Heartbeat:Connect(function()
         if not moveEnabled then
@@ -78,12 +77,10 @@ local function moveForward()
             return
         end
         
-        -- Kiểm tra nếu nhân vật đang di chuyển
         if humanoid.MoveDirection.Magnitude > 0 then
-            local currentDirection = humanoid.MoveDirection.Unit -- Hướng di chuyển hiện tại
-            local speed = flyspeed -- Tốc độ do người dùng nhập
+            local currentDirection = humanoid.MoveDirection.Unit
+            local speed = flyspeed
 
-            -- Cập nhật vị trí của người chơi liên tục theo hướng hiện tại
             hrp.CFrame = hrp.CFrame + currentDirection * speed * 0.1
         end
     end)
@@ -96,7 +93,7 @@ MainTab:AddToggle({
     Callback = function(toggleValue)
         moveEnabled = toggleValue
         if moveEnabled then
-            moveForward() -- Kích hoạt tính năng di chuyển
+            moveForward()
             OrionLib:MakeNotification({
                 Name = "Function on",
                 Content = "Set Speed To " .. flyspeed,
@@ -114,26 +111,20 @@ MainTab:AddToggle({
 
 -- Function Esp player
 local function EspPlayer()
-    local Player = game.Players:GetService("Players")
-    for _, player in pairs(Player:GetPlayers()) do
-        if player ~= LocalPlayer then    
-            
-            
-            local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            local humanoid =  Character:FindFirstChild("Humanoid")
-            local head = Humanoid:FindFirstChild("Head")
+    local Players = game:GetService("Players")
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local Character = player.Character or player.CharacterAdded:Wait()
+            local head = Character:FindFirstChild("Head")
 
             if head then
-                local headpos = head.Position
-                if headpos then
-                    local box = Instance.new("BoxHandleAdornment")
-                    box.Size = head.Size
-                    box.Adornee = head -- Đặt vị trí của box
-                    box.Color3 = Color3.fromRGB(255, 0, 0) -- Màu sắc của box
-                    box.AlwaysOnTop = true
-                    box.ZIndex = 5 -- Độ sâu của box
-                    box.Parent = head -- Đặt box vào vị trí của head
-                end
+                local box = Instance.new("BoxHandleAdornment")
+                box.Size = head.Size
+                box.Adornee = head
+                box.Color3 = Color3.fromRGB(255, 0, 0)
+                box.AlwaysOnTop = true
+                box.ZIndex = 5
+                box.Parent = head
             end
         end
     end
