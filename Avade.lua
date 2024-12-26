@@ -1,5 +1,24 @@
 -- Tải thư viện giao diện Fluent
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "RielSick Hub",
+    SubTitle = "by Dora",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Grey",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
 
 -- Lấy tên người chơi
 local Players = game:GetService("Players")
@@ -7,58 +26,39 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerName = LocalPlayer.DisplayName
 local GameWS = game.Workspace
 
--- Tạo cửa sổ giao diện chính
-local Window = Fluent:CreateWindow({
-    Title = "Rielsick Hub",
-    Name = "Rielsick Hub",
-    HidePremium = false,
-    SaveConfig = false,
-    ConfigFolder = "Rielsick-Hub",
-    IntroEnabled = true,
-    IntroText = "Welcome to Rielsick Hub!",
-    MinimizeButton = true,
-    DragToggle = true
-})
-
-Fluent:MakeNotification({
-    Name = "Script Loaded!!",
-    Content = "Welcome back, " .. PlayerName,
-    Image = "rbxassetid://4483345998",
-    Time = 3
-})
-
--- Tạo tab chính trong giao diện
-local MainTab = Window:CreateTab({
-    Name = "Home",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
 -- Biến cấu hình tốc độ
 local flyspeed = 100
 local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
 local Aesp = false
 
+-- Thông báo khi script được tải
+Fluent:Notify({
+    Title = "Script Loaded!!",
+    Content = "Welcome back, " .. PlayerName,
+    Duration = 3
+})
+
 -- Thêm ô nhập để điều chỉnh tốc độ
-MainTab:CreateTextbox({
-    Name = "Set Speed",
+Tabs.Main:AddInput("SetSpeed", {
+    Title = "Set Speed",
     Default = tostring(flyspeed),
-    TextDisappear = true,
+    Placeholder = "Enter speed",
+    Numeric = true,
     Callback = function(value)
         local speedInput = tonumber(value)
         if speedInput and speedInput >= minSpeed and speedInput <= maxSpeed then
             flyspeed = speedInput
-            Fluent:MakeNotification({
-                Name = "Speed Set",
+            Fluent:Notify({
+                Title = "Speed Set",
                 Content = "Speed updated to " .. flyspeed,
-                Time = 2
+                Duration = 2
             })
         else
-            Fluent:MakeNotification({
-                Name = "Invalid Value",
+            Fluent:Notify({
+                Title = "Invalid Value",
                 Content = "Enter a value between " .. minSpeed .. " and " .. maxSpeed,
-                Time = 2
+                Duration = 2
             })
         end
     end
@@ -89,23 +89,23 @@ local function moveForward()
 end
 
 -- Thêm Toggle cho tính năng di chuyển thuận
-MainTab:CreateToggle({
-    Name = "Speed Boost",
+Tabs.Main:AddToggle("SpeedBoost", {
+    Title = "Speed Boost",
     Default = false,
     Callback = function(toggleValue)
         moveEnabled = toggleValue
         if moveEnabled then
             moveForward()
-            Fluent:MakeNotification({
-                Name = "Function on",
+            Fluent:Notify({
+                Title = "Function on",
                 Content = "Set Speed To " .. flyspeed,
-                Time = 2
+                Duration = 2
             })
         else
-            Fluent:MakeNotification({
-                Name = "Auto Move Deactivated",
+            Fluent:Notify({
+                Title = "Auto Move Deactivated",
                 Content = "Auto move has been disabled.",
-                Time = 2
+                Duration = 2
             })
         end
     end
@@ -133,28 +133,48 @@ local function EspPlayer()
 end
 
 -- Thêm Toggle cho tính năng Esp
-MainTab:CreateToggle({
-    Name = "Esp player",
+Tabs.Main:AddToggle("EspPlayer", {
+    Title = "Esp player",
     Default = false,
     Callback = function(toggleValue)
         Aesp = toggleValue
 
         if Aesp then
             EspPlayer()
-            Fluent:MakeNotification({
-                Name = "Function on",
+            Fluent:Notify({
+                Title = "Function on",
                 Content = "Esp player has been enabled.",
-                Time = 2
+                Duration = 2
             })
         else
-            Fluent:MakeNotification({
-                Name = "Function off",
+            Fluent:Notify({
+                Title = "Function off",
                 Content = "Esp player has been disabled.",
-                Time = 2
+                Duration = 2
             })
         end
     end
 })
 
--- Khởi tạo giao diện
-Fluent:Init()
+-- Addons:
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
