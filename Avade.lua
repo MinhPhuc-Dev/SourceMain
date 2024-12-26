@@ -138,7 +138,35 @@ local function speed(Wp)
     end
 end
 
--- Thêm toggle thay đổi tốc độ vào giao diện
+-- Thêm slider để thay đổi tốc độ bay
+MainTab:AddSlider({
+    Name = "Fly Speed",
+    Min = 10,
+    Max = 200,
+    Default = 50,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(value)
+        flyspeed = value
+    end
+})
+
+-- Thêm slider để thay đổi tốc độ đi bộ
+MainTab:AddSlider({
+    Name = "Walk Speed",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(value)
+        speed(value)
+    end
+})
+
+-- Thêm toggle thay đổi tốc độ di chuyển
 MainTab:AddToggle({
     Name = "Speed",
     Default = false,
@@ -155,4 +183,3 @@ MainTab:AddToggle({
 
 -- Khởi tạo giao diện
 OrionLib:Init()
-
