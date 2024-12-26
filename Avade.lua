@@ -25,7 +25,7 @@ OrionLib:MakeNotification({
     Name = "Script Loaded!!",
     Content = "Welcome back, " .. PlayerName,
     Image = "rbxassetid://4483345998",  -- Thêm hình ảnh cho thông báo (tuỳ chọn)
-    Time = 3  -- Thời gian hiển thị thông báo, 3 giây
+    Time = 3  -- Thời gian hiển thị thông báo, 5 giây
 })
 
 -- Tạo tab chính trong giao diện
@@ -86,16 +86,42 @@ userInputService.InputEnded:Connect(function(input)
 end)
 
 -- Hàm thay đổi tốc độ di chuyển
-local function speed(Wp)
-    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.WalkSpeed = Wp
-        print("Speed set to", Wp)
-    else
-        print("Can't find Humanoid")
-    end
+local function speedControl()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    
+    if not humanoid or not hrp then return end
+    
+    local currentSpeed = 16  -- Tốc độ ban đầu (có thể điều chỉnh)
+    local maxSpeed = 100     -- Tốc độ tối đa
+    local acceleration = 2    -- Tăng tốc độ mỗi giây
+    
+    -- Vòng lặp liên tục để tăng tốc độ khi nhân vật di chuyển
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if humanoid.MoveDirection.Magnitude > 0 then
+            -- Tăng tốc độ dần dần khi di chuyển
+            currentSpeed = math.min(currentSpeed + acceleration, maxSpeed)
+        else
+            -- Giảm tốc độ khi không di chuyển
+            currentSpeed = math.max(currentSpeed - acceleration, 16)
+        end
+
+        -- Cập nhật tốc độ di chuyển của nhân vật
+        humanoid.WalkSpeed = currentSpeed
+    end)
 end
+
+-- Thêm Toggle cho tính năng thay đổi tốc độ
+MainTab:AddToggle({
+    Name = "Auto Speed Control",
+    Default = false,
+    Callback = function(toggleValue)
+        if toggleValue then
+            speedControl()  -- Kích hoạt tính năng thay đổi tốc độ
+        end
+    end
+})
 
 -- Thêm input box cho Walk Speed
 MainTab:AddTextbox({
@@ -104,22 +130,8 @@ MainTab:AddTextbox({
     TextDisappear = true,
     Callback = function(value)
         local speedValue = tonumber(value) or 16  -- Đảm bảo giá trị hợp lệ
-        speed(speedValue)
-    end
-})
-
--- Thêm toggle thay đổi tốc độ di chuyển
-MainTab:AddToggle({
-    Name = "Speed",
-    Default = false,
-    Callback = function(toggleValue)
-        if toggleValue then
-            local speedValue = 100  -- Tốc độ cao
-            speed(speedValue)
-        else
-            local speedValue = 16 -- Tốc độ mặc định
-            speed(speedValue)
-        end
+        -- Điều chỉnh tốc độ của nhân vật nếu cần
+        LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = speedValue
     end
 })
 
