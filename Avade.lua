@@ -14,7 +14,7 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Main = Window:AddTab({ Title = "Misc", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -52,18 +52,18 @@ screenGui.Parent = playerGui
 -- Tạo Frame chứa nút
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 150, 0, 150)
-frame.Position = UDim2.new(0.5, -75, 0.5, -75)
+frame.Position = UDim2.new(0.5, -75, 0.5, -75) -- vị trí Frame (x,y,z)
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.BackgroundTransparency = 1 -- Làm trong suốt Frame
 frame.Parent = screenGui
 
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50) -- kích thước bằng với kích thước logo roblox
-toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50) -- vị trí của nút nằm bên dưới toggle mở setting của roblox
+toggleButton.Size = UDim2.new(0, 30, 0, 30) -- kích thước bằng với kích thước logo roblox
+toggleButton.Position = UDim2.new(0, 0, 0, 10) -- vị trí nút (x,y,z)
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
-toggleButton.Text = ""
+toggleButton.Text = nil
 toggleButton.BorderSizePixel = 0
 toggleButton.Parent = frame
 
@@ -81,13 +81,15 @@ toggleButton.MouseButton1Click:Connect(function()
     isToggled = not isToggled -- Đổi trạng thái
     if isToggled then
         -- Kích thước to lên 1 tí
-        toggleButton.Size = UDim2.new(0, 60, 0, 60)
+        toggleButton.Size = UDim2.new(0, 40, 0, 40)
         -- Tự động Bấm Phím LeftControl
+        toggleButton.Text = "ON"
         game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
     else
         -- Kích thước trở lại ban đầu
-        toggleButton.Size = UDim2.new(0, 50, 0, 50)
-        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
+        toggleButton.Size = UDim2.new(0, 30, 0, 30)
+        toggleButton.Text = "OFF"
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
     end
 end)
 
