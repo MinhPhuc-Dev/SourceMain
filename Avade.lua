@@ -60,8 +60,10 @@ frame.Parent = screenGui
 
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 100, 0, 100)
-toggleButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+toggleButton.Size = UDim2.new(0, 50, 0, 50) -- kích thươc bằng với kích thước logo roblox
+-- postion cua button nằm ben dưới toggle mở setting của roblox
+toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50)
+
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
 toggleButton.Text = ""
@@ -83,18 +85,13 @@ toggleButton.MouseButton1Click:Connect(function()
     if isToggled then
         -- kich thuoc to len 1 tí
 
-        toggleButton.Size = UDim2.new(0, 110, 0, 110)
-        -- bật Ui Fluent
-        MainTab:Show()
-        -- bật phím LeftControl để bật Ui Fluent
-        Window:Show() -- Hiển thị cửa sổ
-        -- key LeftControl để bật UI
-        Window:SetMinimizeKey(Enum.KeyCode.LeftControl)
+        toggleButton.Size = UDim2.new(0, 60, 0, 60)
+        -- Tự động Bấm Phím LeftControl
+        game:GetService("UserInputService"):SendKeysPressed({Enum.KeyCode.LeftControl})
     else
         -- kích thước trở lại ban đầu
-        toggleButton.Size = UDim2.new(0, 100, 0, 100)
-        MainTab:Hide() -- Tắt Ui Fluent
-        Window:Hide() -- Ẩn cửa sổ
+        toggleButton.Size = UDim2.new(0, 50, 0, 50)
+        game:GetService("UserInputService"):SendKeysPressed({Enum.KeyCode.LeftControl})
     end
 end)
 -- Thêm ô nhập để điều chỉnh tốc độ
