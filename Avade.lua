@@ -40,20 +40,58 @@ Fluent:Notify({
     Duration = 3
 })
 
--- toggle bat tat UI * Doc lap khong su dung Fluent* hinh tron
-local function CreateToggleUi()
-    local Toggle = Instance.new("TextButton")
-    Toggle.Name = "Toggle"
-    Toggle.Size = UDim2.new(0, 50, 0, 50)
-    Toggle.Position = UDim2.new(0, 0, 0, 0)
-    Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Toggle.Text = "ON/OFF"
-    Toggle.BorderSizePixel = 0
-    Toggle.AutoButtonColor = false
-    Toggle.ZIndex = 2
-    return Toggle
-end
+-- tao toggle UI trong StarterGui
+-- Tạo GUI trong StarterGui
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ToggleButtonGUI"
+screenGui.Parent = playerGui
+
+-- Tạo Frame chứa nút
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 150, 0, 150)
+frame.Position = UDim2.new(0.5, -75, 0.5, -75)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundTransparency = 1 -- Làm trong suốt Frame
+frame.Parent = screenGui
+
+-- Tạo nút hình tròn
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 100)
+toggleButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
+toggleButton.Text = ""
+toggleButton.BorderSizePixel = 0
+toggleButton.Parent = frame
+
+-- Định dạng hình tròn
+toggleButton.ClipsDescendants = true -- Bắt buộc để nút có dạng tròn
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0.5, 0) -- Hình tròn hoàn toàn
+uicorner.Parent = toggleButton
+
+-- Biến trạng thái bật/tắt
+local isToggled = false
+
+-- Hàm xử lý khi nút được nhấp
+toggleButton.MouseButton1Click:Connect(function()
+    isToggled = not isToggled -- Đổi trạng thái
+    if isToggled then
+        -- kich thuoc to len 1 tí
+
+        toggleButton.Size = UDim2.new(0, 110, 0, 110)
+        -- bật Ui Fluent
+        MainTab:Show()
+    else
+        -- kích thước trở lại ban đầu
+        toggleButton.Size = UDim2.new(0, 100, 0, 100)
+        MainTab:Hide() -- Tắt Ui Fluent
+    end
+end)
 -- Thêm ô nhập để điều chỉnh tốc độ
 Tabs.Main:AddInput("SetSpeed", {
     Title = "Set Speed",
@@ -192,39 +230,6 @@ Tabs.Main:AddToggle("EspPlayer", {
     end
 })
 
-local function FindPlayerKnife()
-    local item = GameWS:FindFirstChild("Knife")
-    if item then
-        print("FoundedFoundedFoundedFoundedFoundedFoundedFounded")
-        local PlayerHoldKnife = item.Parent
-        local PHKName = PlayerHoldKnife.Name
-        if PlayerHoldKnife then
-            print("Murder is: " .. PHKName)
-        end
-    end
-end
-
--- Thêm Toggle cho tính năng FindPlayerKnife
-Tabs.Main:AddToggle("FindPlayerKnife", {
-    Title = "Find Player Knife",
-    Default = false,
-    Callback = function(toggleValue)
-        if toggleValue then
-            FindPlayerKnife()
-            Fluent:Notify({
-                Title = "Function on",
-                Content = "Find Player Knife has been enabled.",
-                Duration = 2
-            })
-        else
-            Fluent:Notify({
-                Title = "Function off",
-                Content = "Find Player Knife has been disabled.",
-                Duration = 2
-            })
-        end
-    end
-})
 
 -- Addons:
 SaveManager:SetLibrary(Fluent)
