@@ -122,7 +122,7 @@ local function moveForward()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     local hrp = character:FindFirstChild("HumanoidRootPart")
     
-    if not humanoid hoặc không hrp sau đó trở lại kết thúc
+    if not humanoid or not hrp then return end
 
     local connection
     connection = game:GetService("RunService").Heartbeat:Connect(function()
