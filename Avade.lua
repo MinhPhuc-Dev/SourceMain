@@ -40,7 +40,6 @@ Fluent:Notify({
     Duration = 3
 })
 
--- tao toggle UI trong StarterGui
 -- Tạo GUI trong StarterGui
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -60,10 +59,8 @@ frame.Parent = screenGui
 
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50) -- kích thươc bằng với kích thước logo roblox
--- postion cua button nằm ben dưới toggle mở setting của roblox
-toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50)
-
+toggleButton.Size = UDim2.new(0, 50, 0, 50) -- kích thước bằng với kích thước logo roblox
+toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50) -- vị trí của nút nằm bên dưới toggle mở setting của roblox
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
 toggleButton.Text = ""
@@ -83,17 +80,17 @@ local isToggled = false
 toggleButton.MouseButton1Click:Connect(function()
     isToggled = not isToggled -- Đổi trạng thái
     if isToggled then
-        -- kich thuoc to len 1 tí
-
+        -- Kích thước to lên 1 tí
         toggleButton.Size = UDim2.new(0, 60, 0, 60)
         -- Tự động Bấm Phím LeftControl
-        game:GetService("UserInputService"):SendKeysPressed({Enum.KeyCode.LeftControl})
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
     else
-        -- kích thước trở lại ban đầu
+        -- Kích thước trở lại ban đầu
         toggleButton.Size = UDim2.new(0, 50, 0, 50)
-        game:GetService("UserInputService"):SendKeysPressed({Enum.KeyCode.LeftControl})
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
     end
 end)
+
 -- Thêm ô nhập để điều chỉnh tốc độ
 Tabs.Main:AddInput("SetSpeed", {
     Title = "Set Speed",
@@ -125,7 +122,7 @@ local function moveForward()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     local hrp = character:FindFirstChild("HumanoidRootPart")
     
-    if not humanoid or not hrp then return end
+    if not humanoid hoặc không hrp sau đó trở lại kết thúc
 
     local connection
     connection = game:GetService("RunService").Heartbeat:Connect(function()
@@ -231,7 +228,6 @@ Tabs.Main:AddToggle("EspPlayer", {
         end
     end
 })
-
 
 -- Addons:
 SaveManager:SetLibrary(Fluent)
