@@ -86,10 +86,15 @@ toggleButton.MouseButton1Click:Connect(function()
         toggleButton.Size = UDim2.new(0, 110, 0, 110)
         -- bật Ui Fluent
         MainTab:Show()
+        -- bật phím LeftControl để bật Ui Fluent
+        Window:Show() -- Hiển thị cửa sổ
+        -- key LeftControl để bật UI
+        Window:SetMinimizeKey(Enum.KeyCode.LeftControl)
     else
         -- kích thước trở lại ban đầu
         toggleButton.Size = UDim2.new(0, 100, 0, 100)
         MainTab:Hide() -- Tắt Ui Fluent
+        Window:Hide() -- Ẩn cửa sổ
     end
 end)
 -- Thêm ô nhập để điều chỉnh tốc độ
