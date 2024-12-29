@@ -346,7 +346,7 @@ local function SafeModeWhenLowHealth()
     local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
     local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = Character:FindFirstChildOfClass("Humanoid")
-    
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
     if not humanoid then return end
 
     local HealthNow = humanoid.Health
@@ -354,10 +354,13 @@ local function SafeModeWhenLowHealth()
     local LowHealth = HealthMax * HealhPercent / 100
 
     if HealthNow <= LowHealth then
+        HumanoidRootPart.CFrame = CFrame.new(608, 662, 244)
+
         Fluent:Notify({
             Title = "Safe Mode Notice!!",
             Content = "Player Low Health!!!",
             Duration = 2
+            wait(5)
         })
     end
 end
