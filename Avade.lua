@@ -32,6 +32,7 @@ local flyspeed = 100
 local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
 local Aesp = false
+local HealhPercent = 20 -- Initialize HealhPercent with a default value
 local MiscTab = Tabs.Misc -- Sử dụng tab Misc thay vì Main
 
 -- Thông báo khi script được tải
