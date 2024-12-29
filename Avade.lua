@@ -277,7 +277,6 @@ local function SafeModeWhenLowHealth()
             Duration = 2
         })
     end
-end
 
 -- Add toggle for SafeModeWhenLowHealth
 print("Adding SafeModeWhenLowHealth toggle to Main tab")
