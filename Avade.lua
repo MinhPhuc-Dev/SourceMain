@@ -236,7 +236,7 @@ Tabs.Misc:AddToggle("EspPlayer", {
     end
 })
 
---  AutoDodgSkill Function 
+-- AutoDodgSkill Function 
 local function AutoDodgSkill()
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
@@ -289,14 +289,15 @@ local function AutoDodgSkill()
 end 
 
 -- Thêm Toggle cho tính năng AutoDodgSkill
-print("Adding AutoDodgSkill toggle to Misc tab")
-Tabs.Main:toggle("AutoDodgSkill", {
+print("Adding AutoDodgSkill toggle to Main tab")
+Tabs.Main:AddToggle("AutoDodgSkill", {
     Title = "Auto Dodg Skill",
     Default = false,
     Callback = function(toggleValue)
         if toggleValue then
             coroutine.wrap(AutoDodgSkill)() -- Sử dụng coroutine.wrap để chạy AutoDodgSkill trong một thread riêng
             Fluent:Notify({
+                Title = "Function on",
                 Content = "Auto Dodg Skill has been enabled.",
                 Duration = 2
             })
