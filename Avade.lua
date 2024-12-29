@@ -14,7 +14,8 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "" }), -- Đổi tên tab Main thành Misc
+    Main = Window:AddTab({ Title = "Main", Icon = "" }), -- Tạo tab Main mới
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -31,7 +32,7 @@ local flyspeed = 100
 local minSpeed, maxSpeed = 20, 500
 local moveEnabled = false
 local Aesp = false
-local MainTab = Tabs.Main
+local MiscTab = Tabs.Misc -- Sử dụng tab Misc thay vì Main
 
 -- Thông báo khi script được tải
 Fluent:Notify({
@@ -52,7 +53,7 @@ screenGui.Parent = playerGui
 -- Tạo Frame chứa nút
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 150, 0, 150)
-frame.Position = UDim2.new(0.5, -75, 0.5, -75) -- vị trí Frame (x,y,z)
+frame.Position = UDim2.new(0.5, -75, 0.5, -75)
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.BackgroundTransparency = 1 -- Làm trong suốt Frame
 frame.Parent = screenGui
@@ -60,7 +61,7 @@ frame.Parent = screenGui
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 30, 0, 30) -- kích thước bằng với kích thước logo roblox
-toggleButton.Position = UDim2.new(0, 0, 0, 10) -- vị trí nút (x,y,z)
+toggleButton.Position = UDim2.new(0.5), 0, 30, 30) -- vị trí nút (x,y,z)
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
 toggleButton.Text = nil
@@ -94,7 +95,7 @@ toggleButton.MouseButton1Click:Connect(function()
 end)
 
 -- Thêm ô nhập để điều chỉnh tốc độ
-Tabs.Main:AddInput("SetSpeed", {
+Tabs.Misc:AddInput("SetSpeed", {
     Title = "Set Speed",
     Default = tostring(flyspeed),
     Placeholder = "Enter speed",
@@ -143,7 +144,7 @@ local function moveForward()
 end
 
 -- Thêm Toggle cho tính năng di chuyển thuận
-Tabs.Main:AddToggle("SpeedBoost", {
+Tabs.Misc:AddToggle("SpeedBoost", {
     Title = "Speed Boost",
     Default = false,
     Callback = function(toggleValue)
@@ -174,9 +175,9 @@ local function EspPlayer()
         local hrp = character:FindFirstChild("HumanoidRootPart")
         if hrp then
             local box = Instance.new("BoxHandleAdornment")
-            box.Size = hrp.Size
+            box.Size = hrp.Size * 0.5
             box.Adornee = hrp
-            box.Color3 = Color3.fromRGB(255, 0, 0)
+            box.Color3 = Color3.fromRGB(255, 50, 62)
             box.AlwaysOnTop = true
             box.ZIndex = 5
             box.Transparency = 0.5
@@ -196,7 +197,7 @@ local function EspPlayer()
                         if not box then
                             createBox(character)
                         else
-                            box.Size = hrp.Size
+                            box.Size = hrp.Size * 0.5
                         end
                     end
                 end
@@ -208,7 +209,7 @@ local function EspPlayer()
 end
 
 -- Thêm Toggle cho tính năng Esp
-Tabs.Main:AddToggle("EspPlayer", {
+Tabs.Misc:AddToggle("EspPlayer", {
     Title = "Esp player",
     Default = false,
     Callback = function(toggleValue)
@@ -230,6 +231,78 @@ Tabs.Main:AddToggle("EspPlayer", {
         end
     end
 })
+
+
+-- AddInput HealthPercent Value ( 20 - 50 )
+Tabs.Main:AddInput("HealthPercent", {
+    Title = "Health %",
+    Default = "20",
+    Placeholder = "Enter Health Percent",
+    Numeric = true,
+    Callback = function(value)
+        HealhPercent = tonumber(value)
+        if HealhPercent and HealhPercent >= 20 and HealhPercent <= 50 then
+            Fluent:Notify({
+                Title = "Health Percent Set",
+                Content = "Health Percent updated to " .. HealhPercent,
+                Duration = 2
+            })
+        else
+            Fluent:Notify({
+                Title = "Invalid Value",
+                Content = "Enter a value between 20 and 50",
+                Duration = 2
+            })
+        end
+    end
+})
+
+
+-- Function SafeModeWhenLowHealth
+local function SafeModeWhenLowHealth()
+    
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+    local Character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local HealthNow = humanoid.Health
+    local HealthMax = humanoid.MaxHealth
+    local LowHealth = HealthMax * HealhPercent/100
+    
+    if HealthNow <= LowHealth then
+        Fluent:Notify({
+            Title = "Safe Mode Notice!!",
+            Content = "Player Low Health",
+            Duration = 2
+        })
+    end
+end
+
+-- add toggle SafeModeWhenLowHealth
+
+Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
+    Title = "Safe Mode When Low Health",
+    Default = false,
+    Callback = function(toggleValue)
+        Aesp = toggleValue
+        if Aes[] then
+            SafeModeWhenLowHealth()
+            Fluent:Notify({
+                Title = "Function on",
+                Content = "Safe Mode When Low Health has been enabled.",
+                Duration = 2
+            })
+        else
+            Fluent:Notify({
+                Title = "Function off",
+                Content = "Safe Mode When Low Health has been disabled.",
+                Duration = 2
+            })
+        end
+    end
+})
+
+
 
 -- Addons:
 SaveManager:SetLibrary(Fluent)
