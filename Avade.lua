@@ -267,6 +267,9 @@ local function SafeModeWhenLowHealth()
     local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
     local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = Character:FindFirstChildOfClass("Humanoid")
+    
+    if not humanoid then return end
+
     local HealthNow = humanoid.Health
     local HealthMax = humanoid.MaxHealth
     local LowHealth = HealthMax * HealhPercent / 100
@@ -280,21 +283,27 @@ local function SafeModeWhenLowHealth()
     end
 end
 
+-- Variable to store the connection
+local safeModeConnection
+
 -- Add toggle for SafeModeWhenLowHealth
 print("Adding SafeModeWhenLowHealth toggle to Main tab")
 Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
     Title = "Safe Mode When Low Health",
     Default = false,
     Callback = function(toggleValue)
-        Aesp = toggleValue
-        if Aesp then
-            SafeModeWhenLowHealth()
+        if toggleValue then
+            safeModeConnection = game:GetService("RunService").RenderStepped:Connect(SafeModeWhenLowHealth)
             Fluent:Notify({
                 Title = "Function on",
                 Content = "Safe Mode When Low Health has been enabled.",
                 Duration = 2
             })
         else
+            if safeModeConnection then
+                safeModeConnection:Disconnect()
+                safeModeConnection = nil
+            end
             Fluent:Notify({
                 Title = "Function off",
                 Content = "Safe Mode When Low Health has been disabled.",
