@@ -62,7 +62,7 @@ frame.Parent = screenGui
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 30, 0, 30) -- kích thước bằng với kích thước logo roblox
-toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50) -- vị trí nút (x,y,z)
+toggleButton.Position = UDim2.new(0.5, 0, 0.5, 30) -- vị trí nút (x,y,z)
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
 toggleButton.Text = "" -- Đặt giá trị mặc định là chuỗi rỗng thay vì nil
@@ -236,6 +236,80 @@ Tabs.Misc:AddToggle("EspPlayer", {
     end
 })
 
+--  AutoDodgSkill Function 
+local function AutoDodgSkill()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+    local PlayerPosition = HumanoidRootPart.Position
+    local PositionDodge = PlayerPosition + Vector3.new(20, 0, 20)
+    
+    -- Tạo 1 hitbox xung quanh local player
+    local box = Instance.new("Part")
+    box.Size = Vector3.new(20, 20, 20)
+    box.Anchored = true -- Không cho di chuyển
+    box.CanCollide = false -- Không va chạm
+    box.Position = PlayerPosition
+    box.Color = Color3.fromRGB(255, 0, 0)
+    box.Transparency = 0.5
+    box.Parent = game.Workspace -- Sử dụng game.Workspace thay cho GameWS
+    
+    -- Cập nhật vị trí hitbox liên tục theo player
+    while true do
+        local PlayerPosition = HumanoidRootPart.Position
+        box.Position = PlayerPosition -- Cập nhật vị trí box
+        
+        -- Kiểm tra xem có người chơi nào trong phạm vi của box
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                local character = player.Character
+                if character then
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        local distance = (hrp.Position - box.Position).Magnitude
+                        if distance <= 10 then -- Kiểm tra khoảng cách trong phạm vi của box
+                            local playerName = player.Name
+                            print("Player in range: " .. playerName)
+                            -- Hiển thị thông báo
+                            game.StarterGui:SetCore("SendNotification", {
+                                Title = "Player Detected",
+                                Text = playerName .. " is in range!",
+                                Duration = 2
+                            })
+                        end
+                    end
+                end
+            end
+        end
+        
+        wait(0.1) -- Thêm wait để giảm tải hiệu suất
+    end
+end 
+
+-- Thêm Toggle cho tính năng AutoDodgSkill
+print("Adding AutoDodgSkill toggle to Misc tab")
+Tabs.Main:toggle("AutoDodgSkill", {
+    Title = "Auto Dodg Skill",
+    Default = false,
+    Callback = function(toggleValue)
+        if toggleValue then
+            coroutine.wrap(AutoDodgSkill)() -- Sử dụng coroutine.wrap để chạy AutoDodgSkill trong một thread riêng
+            Fluent:Notify({
+                Content = "Auto Dodg Skill has been enabled.",
+                Duration = 2
+            })
+        else
+            Fluent:Notify({
+                Title = "Function off",
+                Content = "Auto Dodg Skill has been disabled.",
+                Duration = 2
+            })
+        end
+    end
+})
+    
 -- AddInput HealthPercent Value ( 20 - 50 )
 print("Adding HealthPercent input to Main tab")
 Tabs.Main:AddInput("HealthPercent", {
@@ -277,7 +351,7 @@ local function SafeModeWhenLowHealth()
     if HealthNow <= LowHealth then
         Fluent:Notify({
             Title = "Safe Mode Notice!!",
-            Content = "Player Low Health",
+            Content = "Player Low Health!!!",
             Duration = 2
         })
     end
