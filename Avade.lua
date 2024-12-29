@@ -95,6 +95,7 @@ toggleButton.MouseButton1Click:Connect(function()
 end)
 
 -- Thêm ô nhập để điều chỉnh tốc độ
+print("Adding SetSpeed input to Misc tab")
 Tabs.Misc:AddInput("SetSpeed", {
     Title = "Set Speed",
     Default = tostring(flyspeed),
@@ -144,6 +145,7 @@ local function moveForward()
 end
 
 -- Thêm Toggle cho tính năng di chuyển thuận
+print("Adding SpeedBoost toggle to Misc tab")
 Tabs.Misc:AddToggle("SpeedBoost", {
     Title = "Speed Boost",
     Default = false,
@@ -209,6 +211,7 @@ local function EspPlayer()
 end
 
 -- Thêm Toggle cho tính năng Esp
+print("Adding EspPlayer toggle to Misc tab")
 Tabs.Misc:AddToggle("EspPlayer", {
     Title = "Esp player",
     Default = false,
@@ -233,6 +236,7 @@ Tabs.Misc:AddToggle("EspPlayer", {
 })
 
 -- AddInput HealthPercent Value ( 20 - 50 )
+print("Adding HealthPercent input to Main tab")
 Tabs.Main:AddInput("HealthPercent", {
     Title = "Health %",
     Default = "20",
@@ -276,6 +280,7 @@ local function SafeModeWhenLowHealth()
 end
 
 -- Add toggle for SafeModeWhenLowHealth
+print("Adding SafeModeWhenLowHealth toggle to Main tab")
 Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
     Title = "Safe Mode When Low Health",
     Default = false,
