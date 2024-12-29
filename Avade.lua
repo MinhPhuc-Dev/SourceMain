@@ -360,8 +360,8 @@ local function SafeModeWhenLowHealth()
             Title = "Safe Mode Notice!!",
             Content = "Player Low Health!!!",
             Duration = 2
-            wait(5)
         })
+        wait(5) -- Move wait outside of the Fluent:Notify block
     end
 end
 
