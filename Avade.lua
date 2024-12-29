@@ -399,33 +399,6 @@ Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
 -- Variable to store the connection
 local safeModeConnection
 
--- Add toggle for SafeModeWhenLowHealth
-print("Adding SafeModeWhenLowHealth toggle to Main tab")
-Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
-    Title = "Safe Mode When Low Health",
-    Default = false,
-    Callback = function(toggleValue)
-        if toggleValue then
-            safeModeConnection = game:GetService("RunService").RenderStepped:Connect(SafeModeWhenLowHealth)
-            Fluent:Notify({
-                Title = "Function on",
-                Content = "Safe Mode When Low Health has been enabled.",
-                Duration = 2
-            })
-        else
-            if safeModeConnection then
-                safeModeConnection:Disconnect()
-                safeModeConnection = nil
-            end
-            Fluent:Notify({
-                Title = "Function off",
-                Content = "Safe Mode When Low Health has been disabled.",
-                Duration = 2
-            })
-        end
-    end
-})
-
 -- Addons:
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -448,4 +421,3 @@ Fluent:Notify({
 })
 
 SaveManager:LoadAutoloadConfig()
-
