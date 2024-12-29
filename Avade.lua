@@ -61,7 +61,7 @@ frame.Parent = screenGui
 -- Tạo nút hình tròn
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 30, 0, 30) -- kích thước bằng với kích thước logo roblox
-toggleButton.Position = UDim2.new(0.5), 0, 30, 30) -- vị trí nút (x,y,z)
+toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50) -- vị trí nút (x,y,z)
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
 toggleButton.Text = nil
@@ -232,7 +232,6 @@ Tabs.Misc:AddToggle("EspPlayer", {
     end
 })
 
-
 -- AddInput HealthPercent Value ( 20 - 50 )
 Tabs.Main:AddInput("HealthPercent", {
     Title = "Health %",
@@ -257,18 +256,16 @@ Tabs.Main:AddInput("HealthPercent", {
     end
 })
 
-
 -- Function SafeModeWhenLowHealth
 local function SafeModeWhenLowHealth()
-    
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
-    local Character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = Character:FindFirstChildOfClass("Humanoid")
     local HealthNow = humanoid.Health
     local HealthMax = humanoid.MaxHealth
-    local LowHealth = HealthMax * HealhPercent/100
-    
+    local LowHealth = HealthMax * HealhPercent / 100
+
     if HealthNow <= LowHealth then
         Fluent:Notify({
             Title = "Safe Mode Notice!!",
@@ -278,14 +275,13 @@ local function SafeModeWhenLowHealth()
     end
 end
 
--- add toggle SafeModeWhenLowHealth
-
+-- Add toggle for SafeModeWhenLowHealth
 Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
     Title = "Safe Mode When Low Health",
     Default = false,
     Callback = function(toggleValue)
         Aesp = toggleValue
-        if Aes[] then
+        if Aesp then
             SafeModeWhenLowHealth()
             Fluent:Notify({
                 Title = "Function on",
@@ -301,8 +297,6 @@ Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
         end
     end
 })
-
-
 
 -- Addons:
 SaveManager:SetLibrary(Fluent)
