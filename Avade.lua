@@ -271,9 +271,6 @@ local function AutoDodgSkill()
                         local distance = (hrp.Position - box.Position).Magnitude
                         if distance <= 10 then -- Kiểm tra khoảng cách trong phạm vi của box
                             local playerName = player.Name
-                            local playerPosition = hrp.Position
-                            local PositionDodge = playerPosition + Vector3.new(20, 0, 20)
-                            local CFrame = HumanoidRootPart.CFrame
                             print("Player in range: " .. playerName)
                             -- thay doi vi tri LocalPlayer
                             
@@ -327,7 +324,7 @@ Tabs.Main:AddInput("HealthPercent", {
     Numeric = true,
     Callback = function(value)
         HealhPercent = tonumber(value)
-        if HealhPercent and HealhPercent >= 20 và HealhPercent <= 50 then
+        if HealhPercent and HealhPercent >= 20 and HealhPercent <= 50 then
             Fluent:Notify({
                 Title = "Health Percent Set",
                 Content = "Health Percent updated to " .. HealhPercent,
