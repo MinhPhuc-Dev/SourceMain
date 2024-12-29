@@ -272,11 +272,16 @@ local function AutoDodgSkill()
                         if distance <= 10 then -- Kiểm tra khoảng cách trong phạm vi của box
                             local playerName = player.Name
                             print("Player in range: " .. playerName)
+                            -- thay doi vi tri LocalPlayer
+                            
+                            HumanoidRootPart.CFrame = CFrame.new(PositionDodge)
+
                             -- Hiển thị thông báo
                             game.StarterGui:SetCore("SendNotification", {
                                 Title = "Player Detected",
                                 Text = playerName .. " is in range!",
                                 Duration = 2
+                                wait(2)
                             })
                         end
                     end
