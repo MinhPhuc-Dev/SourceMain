@@ -64,7 +64,7 @@ toggleButton.Size = UDim2.new(0, 30, 0, 30) -- kích thước bằng với kích
 toggleButton.Position = UDim2.new(0.5, 0, 0.5, 50) -- vị trí nút (x,y,z)
 toggleButton.AnchorPoint = Vector2.new(0.5, 0.5)
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ mặc định
-toggleButton.Text = nil
+toggleButton.Text = "" -- Đặt giá trị mặc định là chuỗi rỗng thay vì nil
 toggleButton.BorderSizePixel = 0
 toggleButton.Parent = frame
 
@@ -277,6 +277,7 @@ local function SafeModeWhenLowHealth()
             Duration = 2
         })
     end
+end
 
 -- Add toggle for SafeModeWhenLowHealth
 print("Adding SafeModeWhenLowHealth toggle to Main tab")
