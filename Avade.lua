@@ -271,6 +271,9 @@ local function AutoDodgSkill()
                         local distance = (hrp.Position - box.Position).Magnitude
                         if distance <= 10 then -- Kiểm tra khoảng cách trong phạm vi của box
                             local playerName = player.Name
+                            local playerPosition = hrp.Position
+                            local PositionDodge = playerPosition + Vector3.new(20, 0, 20)
+                            local CFrame = HumanoidRootPart.CFrame
                             print("Player in range: " .. playerName)
                             -- thay doi vi tri LocalPlayer
                             
