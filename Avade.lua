@@ -281,7 +281,6 @@ local function AutoDodgSkill()
                                 Title = "Player Detected",
                                 Text = playerName .. " is in range!",
                                 Duration = 2
-                                wait(2)
                             })
                         end
                     end
@@ -325,7 +324,7 @@ Tabs.Main:AddInput("HealthPercent", {
     Numeric = true,
     Callback = function(value)
         HealhPercent = tonumber(value)
-        if HealhPercent and HealhPercent >= 20 and HealhPercent <= 50 then
+        if HealhPercent and HealhPercent >= 20 và HealhPercent <= 50 then
             Fluent:Notify({
                 Title = "Health Percent Set",
                 Content = "Health Percent updated to " .. HealhPercent,
