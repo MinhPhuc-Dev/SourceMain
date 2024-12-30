@@ -236,6 +236,10 @@ Tabs.Misc:AddToggle("EspPlayer", {
     end
 })
 
+-- Variables to store the connection and hitbox
+local autoDodgSkillConnection
+local hitbox
+
 -- AutoDodgSkill Function 
 local function AutoDodgSkill()
     local Players = game:GetService("Players")
@@ -247,19 +251,19 @@ local function AutoDodgSkill()
     local PositionDodge = PlayerPosition + Vector3.new(20, 0, 20)
     
     -- Tạo 1 hitbox xung quanh local player
-    local box = Instance.new("Part")
-    box.Size = Vector3.new(20, 20, 20)
-    box.Anchored = true -- Không cho di chuyển
-    box.CanCollide = false -- Không va chạm
-    box.Position = PlayerPosition
-    box.Color = Color3.fromRGB(255, 0, 0)
-    box.Transparency = 0.5
-    box.Parent = game.Workspace -- Sử dụng game.Workspace thay cho GameWS
+    hitbox = Instance.new("Part")
+    hitbox.Size = Vector3.new(20, 20, 20)
+    hitbox.Anchored = true -- Không cho di chuyển
+    hitbox.CanCollide = false -- Không va chạm
+    hitbox.Position = PlayerPosition
+    hitbox.Color = Color3.fromRGB(255, 0, 0)
+    hitbox.Transparency = 0.5
+    hitbox.Parent = game.Workspace -- Sử dụng game.Workspace thay cho GameWS
     
     -- Cập nhật vị trí hitbox liên tục theo player
-    while true do
+    autoDodgSkillConnection = game:GetService("RunService").Heartbeat:Connect(function()
         local PlayerPosition = HumanoidRootPart.Position
-        box.Position = PlayerPosition -- Cập nhật vị trí box
+        hitbox.Position = PlayerPosition -- Cập nhật vị trí box
         
         -- Kiểm tra xem có người chơi nào trong phạm vi của box
         for _, player in pairs(Players:GetPlayers()) do
@@ -268,7 +272,7 @@ local function AutoDodgSkill()
                 if character then
                     local hrp = character:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        local distance = (hrp.Position - box.Position).Magnitude
+                        local distance = (hrp.Position - hitbox.Position).Magnitude
                         if distance <= 10 then -- Kiểm tra khoảng cách trong phạm vi của box
                             local playerName = player.Name
                             print("Player in range: " .. playerName)
@@ -287,9 +291,7 @@ local function AutoDodgSkill()
                 end
             end
         end
-        
-        wait(0.1) -- Thêm wait để giảm tải hiệu suất
-    end
+    end)
 end 
 
 -- Thêm Toggle cho tính năng AutoDodgSkill
@@ -306,6 +308,14 @@ Tabs.Main:AddToggle("AutoDodgSkill", {
                 Duration = 2
             })
         else
+            if autoDodgSkillConnection then
+                autoDodgSkillConnection:Disconnect()
+                autoDodgSkillConnection = nil
+            end
+            if hitbox then
+                hitbox:Destroy()
+                hitbox = nil
+            end
             Fluent:Notify({
                 Title = "Function off",
                 Content = "Auto Dodg Skill has been disabled.",
@@ -340,7 +350,6 @@ Tabs.Main:AddInput("HealthPercent", {
     end
 })
 
--- Function SafeModeWhenLowHealth
 -- Function SafeModeWhenLowHealth
 local function SafeModeWhenLowHealth()
     local Players = game:GetService("Players")
@@ -395,9 +404,6 @@ Tabs.Main:AddToggle("SafeModeWhenLowHealth", {
         end
     end
 })
-
--- Variable to store the connection
-local safeModeConnection
 
 -- Addons:
 SaveManager:SetLibrary(Fluent)
